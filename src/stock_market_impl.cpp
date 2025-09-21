@@ -11,12 +11,6 @@ Order::Order(int orderId, int userId, OrderType orderType, double price, int qty
 {
 }
 
-int tradeID;
-int buyOrderID;
-int sellOrderID;
-double price;
-int quantity;
-
 Trade::Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty)
     : tradeID(tradeId)
     , buyOrderID(buyOrderId)
@@ -24,6 +18,36 @@ Trade::Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty
     , price(price)
     , quantity(qty)
 {
+}
+
+inline const int& Trade::getTradeID() const
+{
+    return tradeID;
+}
+
+inline const int& Trade::getMatchedTradeBuyOrderID() const
+{
+    return buyOrderID;
+}
+
+inline const int& Trade::getMatchedTradeSellOrderID() const
+{
+    return sellOrderID;
+}
+
+inline const double& Trade::getTradePrice() const
+{
+    return price;
+}
+
+inline const int& Trade::getTradeQuantity() const
+{
+    return quantity;
+}
+
+inline chrono::system_clock::time_point Trade::getTimestamp() const
+{
+    return timestamp;
 }
 
 TradeBook::recordTrade(const Trade& t)

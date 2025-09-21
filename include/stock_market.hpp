@@ -38,6 +38,12 @@ namespace Components {
             chrono::system_clock::time_point timestamp = chrono::system_clock::now();
         public:
             Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty)
+            const int& getTradeID() const;
+            const int& getMatchedTradeBuyOrderID() const;
+            const int& getMatchedTradeSellOrderID() const;
+            const double& getTradePrice() const;
+            const int& getTradeQuantity() const;
+            chrono::system_clock::time_point getTimestamp() const;
     };
 
     class TradeBook {
