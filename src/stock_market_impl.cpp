@@ -95,6 +95,21 @@ TradeBook::recordTrade(const Trade& t)
     cout << "Trade added to Trade book at " << put_time(localtime(&now_time), "%Y-%m-%d %H:%M:%S") << endl;
 }
 
+TradeBook::displayAllTrades() const
+{
+    for (auto trade : trades) {
+        auto tp = trade.getTimestamp();
+        time_t t = chrono::system_clock::to_time_t(tp);
+        cout << "[TRADE] "
+             << "id =" << trade.getTradeID()
+             << " buyOrderID = " << trade.getBuyOrderID()
+             << " sellOrderID = " << trade.getSellOrderID()
+             << " Qty = " << trade.getQuantity()
+             << " Price = " << trade.getTradePrice()
+             << " ts = " << trade.getTimestampString() << std::endl;
+    }
+}
+
 OrderBook::processNewOrder(const Order& o)
 {
     // Checks for Order o;
