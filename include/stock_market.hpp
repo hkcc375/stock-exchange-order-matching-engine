@@ -16,19 +16,19 @@ namespace Components {
     class Order {
         // Properties of a placed Order;
         private:
-            int orderID;
-            int userID;
-            OrderType orderType;
+            const int orderID;
+            const int userID;
+            const OrderType orderType;
             OrderStatus orderStatus = OrderStatus::PLACED;
-            double price;
+            const double price;
             int quantity;
             chrono::system_clock::time_point timestamp = chrono::system_clock::now();
         public:
-            Order(int orderId, int userId, OrderType orderType, double price, int qty);
-            const int& getOrderID() const;
-            const int& getUserID() const;
-            const double& getPrice() const;
-            const int& getQuantity() const;
+            Order(int userId, OrderType orderType, double price, int qty);
+            int getOrderID() const;
+            int getUserID() const;
+            double getPrice() const;
+            int getQuantity() const;
             OrderType getOrderType() const;
             OrderStatus getOrderStatus() const;
             chrono::system_clock::time_point getTimestamp() const;
@@ -37,19 +37,19 @@ namespace Components {
     class Trade {
         // Properties of a successful Trade;
         private:
-            int tradeID;
-            int buyOrderID;
-            int sellOrderID;
-            double price;
-            int quantity;
+            const int tradeID;
+            const int buyOrderID;
+            const int sellOrderID;
+            const double price;
+            const int quantity;
             chrono::system_clock::time_point timestamp = chrono::system_clock::now();
         public:
             Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty)
-            const int& getTradeID() const;
-            const int& getMatchedTradeBuyOrderID() const;
-            const int& getMatchedTradeSellOrderID() const;
-            const double& getTradePrice() const;
-            const int& getTradeQuantity() const;
+            int getTradeID() const;
+            int getMatchedTradeBuyOrderID() const;
+            int getMatchedTradeSellOrderID() const;
+            double getTradePrice() const;
+            int getTradeQuantity() const;
             chrono::system_clock::time_point getTimestamp() const;
     };
 
@@ -65,12 +65,14 @@ namespace Components {
 
     class OrderBook {
         private:
+            // totalOrders is currently not thread-safe;
+            static int totalOrders;
             // Price -> Queue of Orders (ordered by Timestamp);
             map<double, queue<Order>> buyOrders{};
             map<double, queue<Order>> sellOrders{};
         public:
             void matchOrders();
-            void processNewOrder(const Order& o);
+            void processOrderDetails(const int userId, const OrderType orderType, const double price, int quantity);
             void cancelOldOrder(const Order& o); 
     };
 }

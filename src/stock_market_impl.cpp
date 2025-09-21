@@ -2,6 +2,8 @@
 
 namespace Components {
 
+int OrderBook::totalOrders = 1;
+
 Order::Order(int orderId, int userId, OrderType orderType, double price, int qty)
     : orderID(orderId)
     , userID(userId)
@@ -85,17 +87,17 @@ inline chrono::system_clock::time_point Order::getTimestamp() const
     return timestamp;
 }
 
-TradeBook::recordTrade(const Trade& t)
+void TradeBook::recordTrade(const Trade& t)
 {
     trades.push_back(t);
 
     // Record time at which Trade was added to TradeBook;
     auto now = chrono::system_clock::now();
     time_t now_time = chrono::system_clock::to_time_t(now);
-    cout << "Trade added to Trade book at " << put_time(localtime(&now_time), "%Y-%m-%d %H:%M:%S") << endl;
+    cout << "Trade added at " << put_time(localtime(&now_time), "%Y-%m-%d %H:%M:%S") << endl;
 }
 
-TradeBook::displayAllTrades() const
+void TradeBook::displayAllTrades() const
 {
     for (auto trade : trades) {
         auto tp = trade.getTimestamp();
@@ -110,13 +112,16 @@ TradeBook::displayAllTrades() const
     }
 }
 
-OrderBook::processNewOrder(const Order& o)
+void OrderBook::processOrderDetails(const int userId, const OrderType orderType, const double price, int quantity)
 {
-    // Checks for Order o;
-
-    // If OrderType is "Buy", then insert it into buyOrders DS;
-
-    // If OrderType is "Sell", then insert into sellOrders DS;
+    if (quantity > 0 && price > 0) {
+        Order o(totalOrders++, userId, orderType, price, quantity);
+        if (orderType == OrderType::BUY) {
+            buyOrders[price].push(o);
+        } else {
+            sellOrders[price].push(o);
+        }
+    }
 }
 
 }
