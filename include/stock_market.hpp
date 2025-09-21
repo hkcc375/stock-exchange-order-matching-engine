@@ -25,6 +25,13 @@ namespace Components {
             chrono::system_clock::time_point timestamp = chrono::system_clock::now();
         public:
             Order(int orderId, int userId, OrderType orderType, double price, int qty);
+            const int& getOrderID() const;
+            const int& getUserID() const;
+            const double& getPrice() const;
+            const int& getQuantity() const;
+            OrderType getOrderType() const;
+            OrderStatus getOrderStatus() const;
+            chrono::system_clock::time_point getTimestamp() const;
     };
 
     class Trade {
