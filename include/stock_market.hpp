@@ -8,23 +8,23 @@
 #include <map>
 #include <queue>
 
-
 namespace Components {
 
     enum class OrderType {BUY, SELL};
     enum class OrderStatus {PLACED, PARTIALLY_FILLED, FILLED, CANCELLED};
 
     class Order {
-        // Properties of an Order placed;
+        // Properties of a placed Order;
         private:
             int orderID;
             int userID;
             OrderType orderType;
-            OrderStatus orderStatus;
+            OrderStatus orderStatus = OrderStatus::PLACED;
             double price;
             int quantity;
-            chrono::system_clock::time_point timestamp;
+            chrono::system_clock::time_point timestamp = chrono::system_clock::now();
         public:
+            Order(int orderId, int userId, OrderType orderType, double price, int qty);
     };
 
     class Trade {
@@ -35,26 +35,29 @@ namespace Components {
             int sellOrderID;
             double price;
             int quantity;
-            chrono::system_clock::time_point timestamp;
+            chrono::system_clock::time_point timestamp = chrono::system_clock::now();
         public:
+            Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty)
     };
 
     class TradeBook {
         // Maintains all successful trades recorded by the system;
         private:
-            vector<Trade> trades;
+            vector<Trade> trades{};
         public:
+            TradeBook();
             void displayAllTrades() const;
-            void recordTrade(Trade& t);
-            void queryTrade(Trade& t) const;
+            void recordTrade(const Trade& t);
+            void queryTrade(const Trade& t) const;
     };
 
     class OrderBook {
         private:
             // Price -> Queue of Orders (ordered by Timestamp);
-            map<double, queue<Order>> buyOrders;
-            map<double, queue<Order>> sellOrders;
+            map<double, queue<Order>> buyOrders{};
+            map<double, queue<Order>> sellOrders{};
         public:
+            OrderBook();
             void matchOrders();
             void processNewOrder(const Order& o);
             void cancelOldOrder(const Order& o); 
