@@ -45,7 +45,6 @@ namespace Components {
         private:
             vector<Trade> trades{};
         public:
-            TradeBook();
             void displayAllTrades() const;
             void recordTrade(const Trade& t);
             void queryTrade(const Trade& t) const;
@@ -57,7 +56,6 @@ namespace Components {
             map<double, queue<Order>> buyOrders{};
             map<double, queue<Order>> sellOrders{};
         public:
-            OrderBook();
             void matchOrders();
             void processNewOrder(const Order& o);
             void cancelOldOrder(const Order& o); 
