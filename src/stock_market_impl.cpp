@@ -112,14 +112,48 @@ void TradeBook::displayAllTrades() const
     }
 }
 
+bool OrderComparator::operator()(const Order& a, const Order& b) const
+{
+    return a.getTimestamp() < b.getTimestamp();
+}
+
 void OrderBook::processOrderDetails(const int userId, const OrderType orderType, const double price, int quantity)
 {
+    // Only if quantity and price are positive, then an Order is created;
     if (quantity > 0 && price > 0) {
         Order o(totalOrders++, userId, orderType, price, quantity);
         if (orderType == OrderType::BUY) {
-            buyOrders[price].push(o);
+            buyOrders[price].insert(o);
         } else {
-            sellOrders[price].push(o);
+            sellOrders[price].insert(o);
+        }
+    }
+}
+
+void OrderBook::matchOrders()
+{
+}
+
+void OrderBook::cancelOldOrder(const Order& o)
+{
+    const int orderPrice = o.getPrice();
+    const int orderID = o.getOrderID();
+
+    if (o.getOrderType() == BUY) {
+        auto& orders = buyOrders[orderPrice];
+        for (auto it = orders.begin(); it != orders.end(); it++) {
+            if (it->getOrderID() == orderID) {
+                orders.erase(it);
+                break;
+            }
+        }
+    } else {
+        auto& orders = sellOrders[orderPrice];
+        for (auto it = orders.begin(); it != orders.end(); it++) {
+            if (it->getOrderID() == orderID) {
+                orders.erase(it);
+                break;
+            }
         }
     }
 }

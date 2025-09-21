@@ -68,12 +68,17 @@ namespace Components {
             // totalOrders is currently not thread-safe;
             static int totalOrders;
             // Price -> Queue of Orders (ordered by Timestamp);
-            map<double, queue<Order>> buyOrders{};
-            map<double, queue<Order>> sellOrders{};
+            map<double, set<Order, OrderComparator>, greater<double>> buyOrders{};
+            map<double, set<Order>> sellOrders{};
         public:
             void matchOrders();
             void processOrderDetails(const int userId, const OrderType orderType, const double price, int quantity);
             void cancelOldOrder(const Order& o); 
+    };
+
+    class OrderComparator {
+        public:
+            bool operator()(const Order& a, const Order& b) const;
     };
 }
 
