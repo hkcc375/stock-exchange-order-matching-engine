@@ -47,7 +47,7 @@ namespace Components {
         public:
             void displayAllTrades() const;
             void recordTrade(const Trade& t);
-            void queryTrade(const Trade& t) const;
+            // void queryTrade(const Trade& t) const;
     };
 
     class OrderBook {

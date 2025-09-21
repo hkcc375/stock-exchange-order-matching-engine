@@ -26,4 +26,14 @@ Trade::Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty
 {
 }
 
+TradeBook::recordTrade(const Trade& t)
+{
+    trades.push_back(t);
+
+    // Record time at which Trade was added to TradeBook;
+    auto now = chrono::system_clock::now();
+    time_t now_time = chrono::system_clock::to_time_t(now);
+    cout << "Trade added to Trade book at " << put_time(localtime(&now_time), "%Y-%m-%d %H:%M:%S") << endl;
+}
+
 }
