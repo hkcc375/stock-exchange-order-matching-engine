@@ -48,7 +48,7 @@ namespace Components {
             const int quantity;
             chrono::system_clock::time_point timestamp = chrono::system_clock::now();
         public:
-            Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty)
+            Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty);
             int getTradeID() const;
             int getMatchedTradeBuyOrderID() const;
             int getMatchedTradeSellOrderID() const;
@@ -60,24 +60,27 @@ namespace Components {
     class TradeBook {
         // Maintains all successful trades recorded by the system;
         private:
+            static int totalTrades;
             vector<Trade> trades{};
         public:
             void displayAllTrades() const;
-            void recordTrade(const Trade& t);
+            void recordTrade(const int buyOrderId, const int sellOrderId, const double price, const int qty);
             // void queryTrade(const Trade& t) const;
     };
 
     class OrderBook {
         private:
-            // totalOrders is currently not thread-safe;
+            // Dependency Injection;
+            TradeBook& tradeBook;
             static int totalOrders;
-            // Price -> Queue of Orders (ordered by Timestamp);
+            // Price -> List of Orders (ordered by Timestamp);
             map<double, list<Order>, greater<double>> buyOrders{};
             map<double, list<Order>> sellOrders{};
             void matchBuy(Order& o);
             void matchSell(Order& o);
         public:
-            void processOrderDetails(const int userId, const OrderType orderType, const double price, int quantity);
+            OrderBook(TradeBook& tb);
+            void processOrderDetails(const int userId, const OrderType orderType, const double price, const int quantity);
             void cancelOldOrder(const int orderId); 
     };
 

@@ -3,6 +3,7 @@
 namespace Components {
 
 int OrderBook::totalOrders = 1;
+int TradeBook::totalTrades = 1;
 
 Order::Order(int orderId, int userId, OrderType orderType, double price, int qty)
     : orderID(orderId)
@@ -97,8 +98,14 @@ inline chrono::system_clock::time_point Order::getTimestamp() const
     return timestamp;
 }
 
-void TradeBook::recordTrade(const Trade& t)
+OrderBook::OrderBook(TradeBook& tb)
 {
+    tradeBook = tb;
+}
+
+void TradeBook::recordTrade(const int tradeId, const int buyOrderId, const int sellOrderId, const double price, const int qty)
+{
+    const Trade t(TradeBook::totalTrades++, buyOrderID, sellOrderID, price, qty);
     trades.push_back(t);
 
     // Record time at which Trade was added to TradeBook;
@@ -139,8 +146,11 @@ void OrderBook::matchBuy(Order& buyOrder)
         sellOrder.setQuantity(sellOrder.getQuantity() - quantity);
         buyOrder.setQuantity(buyOrder.getQuantity() - quantity);
 
+        // A trade is generated here;
+        tradeBook.recordTrade(buyOrder.getOrderID(), sellOrder.getOrderID(), sellOrder.getPrice(), quantity);
+
         if (sellOrder.getQuantity() == 0) {
-            sellOrdersLst.pop_front(sellOrder);
+            sellOrdersLst.pop_front();
             if (sellOrdersLst.empty())
                 sellOrders.erase(sellIt);
         }
@@ -164,8 +174,11 @@ void OrderBook::matchSell(Order& sellOrder)
         buyOrder.setQuantity(buyOrder.getQuantity() - quantity);
         sellOrder.setQuantity(sellOrder.getQuantity() - quantity);
 
+        // A trade is generated here;
+        tradeBook.recordTrade(buyOrder.getOrderID(), sellOrder.getOrderID(), buyOrder.getPrice(), quantity);
+
         if (buyOrder.getQuantity() == 0) {
-            buyOrdersLst.pop_front(buyOrder);
+            buyOrdersLst.pop_front();
             if (buyOrdersLst.empty())
                 buyOrders.erase(buyIt);
         }
@@ -235,4 +248,6 @@ void OrderBook::cancelOldOrder(const int orderId, const OrderType orderType, con
         }
         cout << "Invalid SELL Order Cancellation" << endl;
     }
+}
+
 }
