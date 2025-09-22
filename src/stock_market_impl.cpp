@@ -122,11 +122,6 @@ void TradeBook::displayAllTrades() const
     }
 }
 
-bool OrderComparator::operator()(const Order& a, const Order& b) const
-{
-    return a.getTimestamp() < b.getTimestamp();
-}
-
 void OrderBook::processOrderDetails(const int userId, const OrderType orderType, const double price, const int quantity)
 {
     // Only if quantity and price are positive, then an Order is created;
@@ -138,21 +133,17 @@ void OrderBook::processOrderDetails(const int userId, const OrderType orderType,
            inserted into the order book;
         */
         if (orderType == OrderType::BUY) {
-            matchOrder(o);
+            matchBuy(o);
             if (o.getQuantity() > 0) {
                 buyOrders[price].push_back(o);
             }
         } else {
-            mathOrder(o);
+            matchSell(o);
             if (o.getQuantity() > 0) {
                 sellOrders[price].push_back(o);
             }
         }
     }
-}
-
-void OrderBook::matchOrders(Order& o)
-{
 }
 
 /*
@@ -194,6 +185,4 @@ void OrderBook::cancelOldOrder(const int orderId, const OrderType orderType, con
         }
         cout << "Invalid SELL Order Cancellation" << endl;
     }
-}
-
 }

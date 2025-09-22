@@ -74,8 +74,9 @@ namespace Components {
             // Price -> Queue of Orders (ordered by Timestamp);
             map<double, list<Order>, greater<double>> buyOrders{};
             map<double, list<Order>> sellOrders{};
+            void matchBuy(Order& o);
+            void matchSell(Order& o);
         public:
-            void matchOrders(Order& o);
             void processOrderDetails(const int userId, const OrderType orderType, const double price, int quantity);
             void cancelOldOrder(const int orderId); 
     };
