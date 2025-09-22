@@ -6,7 +6,10 @@
 #include <chrono>
 #include <ctime>
 #include <map>
+#include <vector>
 #include <queue>
+#include <list>
+#include <iomanip>
 
 namespace Components {
 
@@ -24,7 +27,7 @@ namespace Components {
             OrderStatus orderStatus = OrderStatus::PLACED;
             const double price;
             int quantity;
-            chrono::system_clock::time_point timestamp = chrono::system_clock::now();
+            std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
         public:
             Order(int orderId, int userId, OrderType orderType, double price, int qty);
             int getOrderID() const;
@@ -35,7 +38,7 @@ namespace Components {
             OrderStatus getOrderStatus() const;
             void setQuantity(int qty);
             void setOrderStatus(OrderStatus status);
-            chrono::system_clock::time_point getTimestamp() const;
+            std::chrono::system_clock::time_point getTimestamp() const;
     };
 
     class Trade {
@@ -46,7 +49,7 @@ namespace Components {
             const int sellOrderID;
             const double price;
             const int quantity;
-            chrono::system_clock::time_point timestamp = chrono::system_clock::now();
+            std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
         public:
             Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty);
             int getTradeID() const;
@@ -54,14 +57,14 @@ namespace Components {
             int getMatchedTradeSellOrderID() const;
             double getTradePrice() const;
             int getTradeQuantity() const;
-            chrono::system_clock::time_point getTimestamp() const;
+            std::chrono::system_clock::time_point getTimestamp() const;
     };
 
     class TradeBook {
         // Maintains all successful trades recorded by the system;
         private:
             static int totalTrades;
-            vector<Trade> trades{};
+            std::vector<Trade> trades{};
         public:
             void displayAllTrades() const;
             void recordTrade(const int buyOrderId, const int sellOrderId, const double price, const int qty);
@@ -74,14 +77,14 @@ namespace Components {
             TradeBook& tradeBook;
             static int totalOrders;
             // Price -> List of Orders (ordered by Timestamp);
-            map<double, list<Order>, greater<double>> buyOrders{};
-            map<double, list<Order>> sellOrders{};
+            std::map<double, std::list<Order>, std::greater<double>> buyOrders{};
+            std::map<double, std::list<Order>> sellOrders{};
             void matchBuy(Order& o);
             void matchSell(Order& o);
         public:
             OrderBook(TradeBook& tb);
             void processOrderDetails(const int userId, const OrderType orderType, const double price, const int quantity);
-            void cancelOldOrder(const int orderId); 
+            void cancelOldOrder(const int orderId, const OrderType orderType, const double orderPrice); 
     };
 
 }

@@ -23,52 +23,52 @@ Trade::Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty
 {
 }
 
-inline const int& Trade::getTradeID() const
+inline int Trade::getTradeID() const
 {
     return tradeID;
 }
 
-inline const int& Trade::getMatchedTradeBuyOrderID() const
+inline int Trade::getMatchedTradeBuyOrderID() const
 {
     return buyOrderID;
 }
 
-inline const int& Trade::getMatchedTradeSellOrderID() const
+inline int Trade::getMatchedTradeSellOrderID() const
 {
     return sellOrderID;
 }
 
-inline const double& Trade::getTradePrice() const
+inline double Trade::getTradePrice() const
 {
     return price;
 }
 
-inline const int& Trade::getTradeQuantity() const
+inline int Trade::getTradeQuantity() const
 {
     return quantity;
 }
 
-inline chrono::system_clock::time_point Trade::getTimestamp() const
+inline std::chrono::system_clock::time_point Trade::getTimestamp() const
 {
     return timestamp;
 }
 
-inline const int& Order::getOrderID() const
+inline int Order::getOrderID() const
 {
     return orderID;
 }
 
-inline const int& Order::getUserID() const
+inline int Order::getUserID() const
 {
     return userID;
 }
 
-inline const double& Order::getPrice() const
+inline double Order::getPrice() const
 {
     return price;
 }
 
-inline const int& Order::getQuantity() const
+inline int Order::getQuantity() const
 {
     return quantity;
 }
@@ -93,39 +93,39 @@ inline void Order::setOrderStatus(OrderStatus status)
     orderStatus = status;
 }
 
-inline chrono::system_clock::time_point Order::getTimestamp() const
+inline std::chrono::system_clock::time_point Order::getTimestamp() const
 {
     return timestamp;
 }
 
 OrderBook::OrderBook(TradeBook& tb)
+    : tradeBook(tb)
 {
-    tradeBook = tb;
 }
 
-void TradeBook::recordTrade(const int tradeId, const int buyOrderId, const int sellOrderId, const double price, const int qty)
+void TradeBook::recordTrade(const int buyOrderId, const int sellOrderId, const double price, const int qty)
 {
-    const Trade t(TradeBook::totalTrades++, buyOrderID, sellOrderID, price, qty);
+    const Trade t(TradeBook::totalTrades++, buyOrderId, sellOrderId, price, qty);
     trades.push_back(t);
 
     // Record time at which Trade was added to TradeBook;
-    auto now = chrono::system_clock::now();
-    time_t now_time = chrono::system_clock::to_time_t(now);
-    cout << "Trade added at " << put_time(localtime(&now_time), "%Y-%m-%d %H:%M:%S") << endl;
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    std::cout << "Trade added at " << std::put_time(std::localtime(&now_time), "%Y-%m-%d %H:%M:%S") << std::endl;
 }
 
 void TradeBook::displayAllTrades() const
 {
     for (auto trade : trades) {
         auto tp = trade.getTimestamp();
-        time_t t = chrono::system_clock::to_time_t(tp);
-        cout << "[TRADE] "
-             << "id =" << trade.getTradeID()
-             << " buyOrderID = " << trade.getBuyOrderID()
-             << " sellOrderID = " << trade.getSellOrderID()
-             << " Qty = " << trade.getQuantity()
-             << " Price = " << trade.getTradePrice()
-             << " ts = " << trade.getTimestampString() << std::endl;
+        std::time_t t = std::chrono::system_clock::to_time_t(tp);
+        std::cout << "[TRADE] "
+                  << "id =" << trade.getTradeID()
+                  << " buyOrderID = " << trade.getMatchedTradeBuyOrderID()
+                  << " sellOrderID = " << trade.getMatchedTradeSellOrderID()
+                  << " Qty = " << trade.getTradeQuantity()
+                  << " Price = " << trade.getTradePrice()
+                  << " ts = " << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") << std::endl;
     }
 }
 
@@ -142,7 +142,7 @@ void OrderBook::matchBuy(Order& buyOrder)
         auto& sellOrdersLst = sellIt->second;
         Order& sellOrder = sellOrdersLst.front();
 
-        int quantity = min(sellOrder.getQuantity(), buyOrder.getQuantity());
+        int quantity = std::min(sellOrder.getQuantity(), buyOrder.getQuantity());
         sellOrder.setQuantity(sellOrder.getQuantity() - quantity);
         buyOrder.setQuantity(buyOrder.getQuantity() - quantity);
 
@@ -170,7 +170,7 @@ void OrderBook::matchSell(Order& sellOrder)
         auto& buyOrdersLst = buyIt->second;
         Order& buyOrder = buyOrdersLst.front();
 
-        int quantity = min(buyOrder.getQuantity(), sellOrder.getQuantity());
+        int quantity = std::min(buyOrder.getQuantity(), sellOrder.getQuantity());
         buyOrder.setQuantity(buyOrder.getQuantity() - quantity);
         sellOrder.setQuantity(sellOrder.getQuantity() - quantity);
 
@@ -225,12 +225,12 @@ void OrderBook::cancelOldOrder(const int orderId, const OrderType orderType, con
                     orderLst.erase(lit);
                     if (orderLst.empty())
                         buyOrders.erase(it);
-                    cout << "Cancelled BUY Order " << orderId << endl;
+                    std::cout << "Cancelled BUY Order " << orderId << std::endl;
                     return;
                 }
             }
         }
-        cout << "Invalid BUY Order Cancellation" << endl;
+        std::cout << "Invalid BUY Order Cancellation" << std::endl;
     } else {
         auto it = sellOrders.find(orderPrice);
         if (it != sellOrders.end()) {
@@ -241,12 +241,12 @@ void OrderBook::cancelOldOrder(const int orderId, const OrderType orderType, con
                     orderLst.erase(lit);
                     if (orderLst.empty())
                         sellOrders.erase(it);
-                    cout << "Cancelled SELL Order " << orderId << endl;
+                    std::cout << "Cancelled SELL Order " << orderId << std::endl;
                     return;
                 }
             }
         }
-        cout << "Invalid SELL Order Cancellation" << endl;
+        std::cout << "Invalid SELL Order Cancellation" << std::endl;
     }
 }
 

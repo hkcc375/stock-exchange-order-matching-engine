@@ -1,4 +1,4 @@
-add_library(ordermatchingengine foo.cpp)
+add_library(ordermatchingengine stock_market_impl.cpp)
 
 target_include_directories(ordermatchingengine PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
