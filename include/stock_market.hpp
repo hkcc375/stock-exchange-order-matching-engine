@@ -81,10 +81,6 @@ namespace Components {
             void cancelOldOrder(const int orderId); 
     };
 
-    class OrderComparator {
-        public:
-            bool operator()(const Order& a, const Order& b) const;
-    };
 }
 
 #endif
