@@ -5,9 +5,8 @@ namespace Components {
 int OrderBook::totalOrders = 1;
 int TradeBook::totalTrades = 1;
 
-Order::Order(int orderId, int userId, OrderType orderType, double price, int qty)
+Order::Order(int orderId, OrderType orderType, double price, int qty)
     : orderID(orderId)
-    , userID(userId)
     , orderType(orderType)
     , price(price)
     , quantity(qty)
@@ -56,11 +55,6 @@ inline std::chrono::system_clock::time_point Trade::getTimestamp() const
 inline int Order::getOrderID() const
 {
     return orderID;
-}
-
-inline int Order::getUserID() const
-{
-    return userID;
 }
 
 inline double Order::getPrice() const
@@ -189,7 +183,7 @@ void OrderBook::processOrderDetails(const int userId, const OrderType orderType,
 {
     // Only if quantity and price are positive, then an Order is created;
     if (quantity > 0 && price > 0) {
-        Order o(totalOrders++, userId, orderType, price, quantity);
+        Order o(totalOrders++, orderType, price, quantity);
 
         /* Note : Here, matchOrders returns a boolean true/false, if the incoming order matched with an existing
            order; Their quantities are updated and a Trade object is generated; else, the order object is simply

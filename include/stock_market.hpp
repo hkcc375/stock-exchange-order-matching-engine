@@ -22,16 +22,14 @@ namespace Components {
         // Properties of a placed Order;
         private:
             const int orderID;
-            const int userID;
             const OrderType orderType;
             OrderStatus orderStatus = OrderStatus::PLACED;
             const double price;
             int quantity;
             std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
         public:
-            Order(int orderId, int userId, OrderType orderType, double price, int qty);
+            Order(int orderId, OrderType orderType, double price, int qty);
             int getOrderID() const;
-            int getUserID() const;
             double getPrice() const;
             int getQuantity() const;
             OrderType getOrderType() const;
@@ -86,7 +84,6 @@ namespace Components {
             void processOrderDetails(const int userId, const OrderType orderType, const double price, const int quantity);
             void cancelOldOrder(const int orderId, const OrderType orderType, const double orderPrice); 
     };
-
 }
 
 #endif
