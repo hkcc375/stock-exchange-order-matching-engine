@@ -82,6 +82,16 @@ inline OrderStatus Order::getOrderStatus() const
     return orderStatus;
 }
 
+inline void Order::setQuantity(int qty)
+{
+    quantity = qty;
+}
+
+inline void Order::setOrderStatus(OrderStatus status)
+{
+    orderStatus = status;
+}
+
 inline chrono::system_clock::time_point Order::getTimestamp() const
 {
     return timestamp;
@@ -117,44 +127,72 @@ bool OrderComparator::operator()(const Order& a, const Order& b) const
     return a.getTimestamp() < b.getTimestamp();
 }
 
-void OrderBook::processOrderDetails(const int userId, const OrderType orderType, const double price, int quantity)
+void OrderBook::processOrderDetails(const int userId, const OrderType orderType, const double price, const int quantity)
 {
     // Only if quantity and price are positive, then an Order is created;
     if (quantity > 0 && price > 0) {
         Order o(totalOrders++, userId, orderType, price, quantity);
+
+        /* Note : Here, matchOrders returns a boolean true/false, if the incoming order matched with an existing
+           order; Their quantities are updated and a Trade object is generated; else, the order object is simply
+           inserted into the order book;
+        */
         if (orderType == OrderType::BUY) {
-            buyOrders[price].insert(o);
+            matchOrder(o);
+            if (o.getQuantity() > 0) {
+                buyOrders[price].push_back(o);
+            }
         } else {
-            sellOrders[price].insert(o);
+            mathOrder(o);
+            if (o.getQuantity() > 0) {
+                sellOrders[price].push_back(o);
+            }
         }
     }
 }
 
-void OrderBook::matchOrders()
+void OrderBook::matchOrders(Order& o)
 {
 }
 
-void OrderBook::cancelOldOrder(const Order& o)
+/*
+ * Below function cancels an order that has orderId as its id, orderType as its type and orderPrice as its price;
+ * If such an order is not present, its prints "Invalid Order Cancellation";
+ */
+void OrderBook::cancelOldOrder(const int orderId, const OrderType orderType, const double orderPrice)
 {
-    const int orderPrice = o.getPrice();
-    const int orderID = o.getOrderID();
-
-    if (o.getOrderType() == BUY) {
-        auto& orders = buyOrders[orderPrice];
-        for (auto it = orders.begin(); it != orders.end(); it++) {
-            if (it->getOrderID() == orderID) {
-                orders.erase(it);
-                break;
+    if (orderType == OrderType::BUY) {
+        auto it = buyOrders.find(orderPrice);
+        if (it != buyOrders.end()) {
+            auto& orderLst = it->second;
+            // Iterate through the list of orders and remove the order whose id is orderId;
+            for (auto lit = orderLst.begin(); lit != orderLst.end(); lit++) {
+                if (lit->getOrderID() == orderId) {
+                    orderLst.erase(lit);
+                    if (orderLst.empty())
+                        buyOrders.erase(it);
+                    cout << "Cancelled BUY Order " << orderId << endl;
+                    return;
+                }
             }
         }
+        cout << "Invalid BUY Order Cancellation" << endl;
     } else {
-        auto& orders = sellOrders[orderPrice];
-        for (auto it = orders.begin(); it != orders.end(); it++) {
-            if (it->getOrderID() == orderID) {
-                orders.erase(it);
-                break;
+        auto it = sellOrders.find(orderPrice);
+        if (it != sellOrders.end()) {
+            auto& orderLst = it->second;
+            // Iterate through the list of orders and remove the order whose id is orderId;
+            for (auto lit = orderLst.begin(); lit != orderLst.end(); lit++) {
+                if (lit->getOrderID() == orderId) {
+                    orderLst.erase(lit);
+                    if (orderLst.empty())
+                        sellOrders.erase(it);
+                    cout << "Cancelled SELL Order " << orderId << endl;
+                    return;
+                }
             }
         }
+        cout << "Invalid SELL Order Cancellation" << endl;
     }
 }
 

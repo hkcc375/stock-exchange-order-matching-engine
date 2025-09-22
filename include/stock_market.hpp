@@ -11,6 +11,8 @@
 namespace Components {
 
     enum class OrderType {BUY, SELL};
+
+    // I now do not see the point of maintaining OrderStatus;
     enum class OrderStatus {PLACED, PARTIALLY_FILLED, FILLED, CANCELLED};
 
     class Order {
@@ -24,13 +26,15 @@ namespace Components {
             int quantity;
             chrono::system_clock::time_point timestamp = chrono::system_clock::now();
         public:
-            Order(int userId, OrderType orderType, double price, int qty);
+            Order(int orderId, int userId, OrderType orderType, double price, int qty);
             int getOrderID() const;
             int getUserID() const;
             double getPrice() const;
             int getQuantity() const;
             OrderType getOrderType() const;
             OrderStatus getOrderStatus() const;
+            void setQuantity(int qty);
+            void setOrderStatus(OrderStatus status);
             chrono::system_clock::time_point getTimestamp() const;
     };
 
@@ -68,12 +72,12 @@ namespace Components {
             // totalOrders is currently not thread-safe;
             static int totalOrders;
             // Price -> Queue of Orders (ordered by Timestamp);
-            map<double, set<Order, OrderComparator>, greater<double>> buyOrders{};
-            map<double, set<Order>> sellOrders{};
+            map<double, list<Order>, greater<double>> buyOrders{};
+            map<double, list<Order>> sellOrders{};
         public:
-            void matchOrders();
+            void matchOrders(Order& o);
             void processOrderDetails(const int userId, const OrderType orderType, const double price, int quantity);
-            void cancelOldOrder(const Order& o); 
+            void cancelOldOrder(const int orderId); 
     };
 
     class OrderComparator {
