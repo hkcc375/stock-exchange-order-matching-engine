@@ -149,6 +149,27 @@ void OrderBook::matchBuy(Order& buyOrder)
 
 void OrderBook::matchSell(Order& sellOrder)
 {
+    while (sellOrder.getQuantity() > 0 && !buyOrders.empty()) {
+        auto buyIt = buyOrders.begin();
+        double maxBuyPrice = buyIt->first;
+
+        // sellOrder's price <= maxBuyPrice;
+        if (sellOrder.getPrice() > maxBuyPrice)
+            break;
+
+        auto& buyOrdersLst = buyIt->second;
+        Order& buyOrder = buyOrdersLst.front();
+
+        int quantity = min(buyOrder.getQuantity(), sellOrder.getQuantity());
+        buyOrder.setQuantity(buyOrder.getQuantity() - quantity);
+        sellOrder.setQuantity(sellOrder.getQuantity() - quantity);
+
+        if (buyOrder.getQuantity() == 0) {
+            buyOrdersLst.pop_front(buyOrder);
+            if (buyOrdersLst.empty())
+                buyOrders.erase(buyIt);
+        }
+    }
 }
 
 void OrderBook::processOrderDetails(const int userId, const OrderType orderType, const double price, const int quantity)
