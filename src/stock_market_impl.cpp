@@ -122,6 +122,35 @@ void TradeBook::displayAllTrades() const
     }
 }
 
+void OrderBook::matchBuy(Order& buyOrder)
+{
+    while (buyOrder.getQuantity() > 0 && !sellOrders.empty()) {
+        auto sellIt = sellOrders.begin();
+        double minSellPrice = sellIt->first;
+
+        // buyOrder's price >= minSellPrice;
+        if (buyOrder.getPrice() < minSellPrice)
+            break;
+
+        auto& sellOrdersLst = sellIt->second;
+        Order& sellOrder = sellOrdersLst.front();
+
+        int quantity = min(sellOrder.getQuantity(), buyOrder.getQuantity());
+        sellOrder.setQuantity(sellOrder.getQuantity() - quantity);
+        buyOrder.setQuantity(buyOrder.getQuantity() - quantity);
+
+        if (sellOrder.getQuantity() == 0) {
+            sellOrdersLst.pop_front(sellOrder);
+            if (sellOrdersLst.empty())
+                sellOrders.erase(sellIt);
+        }
+    }
+}
+
+void OrderBook::matchSell(Order& sellOrder)
+{
+}
+
 void OrderBook::processOrderDetails(const int userId, const OrderType orderType, const double price, const int quantity)
 {
     // Only if quantity and price are positive, then an Order is created;
