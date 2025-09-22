@@ -57,6 +57,11 @@ inline int Order::getOrderID() const
     return orderID;
 }
 
+inline const std::string& Order::getStock() const
+{
+    return stock;
+}
+
 inline double Order::getPrice() const
 {
     return price;

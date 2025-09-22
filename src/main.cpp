@@ -5,6 +5,29 @@
 
 using namespace Components;
 
+std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr)
+{
+    // timeStr format: "HH:MM"
+    std::tm t = {};
+    std::istringstream ss(timeStr);
+    ss >> std::get_time(&t, "%H:%M");
+    if (ss.fail()) {
+        throw std::runtime_error("Invalid time format: " + timeStr);
+    }
+
+    // Set date to today (or any default date)
+    auto now = std::chrono::system_clock::now();
+    std::time_t tt = std::chrono::system_clock::to_time_t(now);
+    std::tm today = *std::localtime(&tt);
+
+    t.tm_mday = today.tm_mday;
+    t.tm_mon = today.tm_mon;
+    t.tm_year = today.tm_year;
+
+    std::time_t time_tt = std::mktime(&t);
+    return std::chrono::system_clock::from_time_t(time_tt);
+}
+
 int main()
 {
     TradeBook tradeBook;
