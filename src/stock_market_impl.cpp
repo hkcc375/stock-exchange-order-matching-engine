@@ -31,6 +31,11 @@ OrderBook::OrderBook(TradeBook& tb)
 {
 }
 
+const std::vector<Trade>& TradeBook::getTrades() const
+{
+    return trades;
+}
+
 void TradeBook::recordTrade(const std::string& stockName, const int buyOrderId, const int sellOrderId, const double price, const int qty, const std::chrono::system_clock::time_point timestamp)
 {
     const Trade t(TradeBook::totalTrades++, stockName, buyOrderId, sellOrderId, price, qty, timestamp);

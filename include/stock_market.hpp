@@ -93,6 +93,7 @@ namespace Components {
         public:
             void displayAllTrades() const;
             void recordTrade(const std::string& stockName, const int buyOrderId, const int sellOrderId, const double price, const int qty, const std::chrono::system_clock::time_point timestamp);
+            const std::vector<Trade>& getTrades() const;
     };
 
     class OrderBook {

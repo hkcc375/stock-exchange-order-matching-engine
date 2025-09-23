@@ -35,6 +35,55 @@ TEST(TradeTest, ConstructorAndGetters)
     EXPECT_EQ(t.getTimestamp(), ts);
 }
 
+/* Fixtures in GoogleTest framework helps us avoid boilerplate construction of TradeBook class
+   and OrderBook class in each of the below test functions;
+*/
+class TestOrderBook : public ::testing::Test {
+protected:
+    TradeBook tradeBook;
+    OrderBook orderBook;
+
+    TestOrderBook()
+        : orderBook(tradeBook)
+    {
+    }
+};
+
+TEST_F(TestOrderBook, RecordTradeMatchesExpected)
+{
+    EXPECT_EQ(tradeBook.getTrades().size(), 0);
+
+    auto timestamp = parseTimeString("10:00");
+    tradeBook.recordTrade("AAPL", 1, 2, 150.0, 10, timestamp);
+
+    EXPECT_EQ(tradeBook.getTrades().size(), 1);
+}
+
+TEST_F(TestOrderBook, DisplayAllTradesMatchesExpected)
+{
+    auto timestamp = parseTimeString("10:00");
+    tradeBook.recordTrade("AAPL", 1, 2, 150.0, 10, timestamp);
+
+    // Captures output of displayAllTrades;
+    testing::internal::CaptureStdout();
+    tradeBook.displayAllTrades();
+    std::string output = testing::internal::GetCapturedStdout();
+
+    // Build the expected string;
+    std::time_t tt = std::chrono::system_clock::to_time_t(timestamp);
+    std::ostringstream expected;
+    expected << "[TRADE]"
+             << " id = 1"
+             << " stockName = AAPL"
+             << " buyOrderID = 1"
+             << " sellOrderID = 2"
+             << " Qty = 10"
+             << " Price = 150"
+             << " ts = " << std::put_time(std::localtime(&tt), "%Y-%m-%d %H:%M:%S") << std::endl;
+
+    EXPECT_EQ(output, expected.str());
+}
+
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
