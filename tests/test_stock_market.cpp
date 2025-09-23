@@ -37,6 +37,7 @@ TEST(TradeTest, ConstructorAndGetters)
 
 /* Fixtures in GoogleTest framework helps us avoid boilerplate construction of TradeBook class
    and OrderBook class in each of the below test functions;
+   Similar to @BeforeAll in Mockito;
 */
 class TestOrderBook : public ::testing::Test {
 protected:
@@ -82,6 +83,21 @@ TEST_F(TestOrderBook, DisplayAllTradesMatchesExpected)
              << " ts = " << std::put_time(std::localtime(&tt), "%Y-%m-%d %H:%M:%S") << std::endl;
 
     EXPECT_EQ(output, expected.str());
+}
+
+TEST_F(TestOrderBook, EndOfDayCleanupCancelsOrders)
+{
+
+    auto marketTime = parseTimeString("13:00");
+    orderBook.processOrderDetails("AAPL", OrderType::BUY, 150.0, 10, marketTime);
+    orderBook.processOrderDetails("AAPL", OrderType::SELL, 160.0, 20, marketTime);
+
+    testing::internal::CaptureStdout();
+    orderBook.endOfDayCleanup();
+    std::string output = testing::internal::GetCapturedStdout();
+
+    EXPECT_NE(output.find("[EOD CANCEL]"), std::string::npos);
+    EXPECT_NE(output.find("All orders removed"), std::string::npos);
 }
 
 int main(int argc, char** argv)
