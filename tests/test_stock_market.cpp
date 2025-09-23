@@ -4,7 +4,7 @@
 using namespace Components;
 
 // Tests getters and setters of Order class
-TEST(OrderTest, ConstructorAndGetters)
+TEST(OrderTest, ConstructorAndGettersMatchAsExpected)
 {
     auto ts = parseTimeString("10:30");
     Order o(1, "AAPL", OrderType::BUY, 100.5, 10, ts);
@@ -21,7 +21,7 @@ TEST(OrderTest, ConstructorAndGetters)
 }
 
 // Tests getters and setters of Trade class
-TEST(TradeTest, ConstructorAndGetters)
+TEST(TradeTest, ConstructorAndGettersMatchAsExpected)
 {
     auto ts = parseTimeString("11:00");
     Trade t(1, "AAPL", 101, 202, 150.0, 20, ts);
@@ -85,7 +85,7 @@ TEST_F(TestOrderBook, DisplayAllTradesMatchesExpected)
     EXPECT_EQ(output, expected.str());
 }
 
-TEST_F(TestOrderBook, EndOfDayCleanupCancelsOrders)
+TEST_F(TestOrderBook, EndOfDayCleanupMatchesExpected)
 {
 
     auto marketTime = parseTimeString("13:00");
@@ -98,6 +98,26 @@ TEST_F(TestOrderBook, EndOfDayCleanupCancelsOrders)
 
     EXPECT_NE(output.find("[EOD CANCEL]"), std::string::npos);
     EXPECT_NE(output.find("All orders removed"), std::string::npos);
+}
+
+TEST_F(TestOrderBook, ViewPlacedOrderDetailsMatchesExpected)
+{
+    auto ts = parseTimeString("10:30");
+
+    testing::internal::CaptureStdout();
+    orderBook.processOrderDetails("BAC", OrderType::SELL, 100.5, 10, ts);
+    std::string out = testing::internal::GetCapturedStdout();
+
+    std::time_t tt = std::chrono::system_clock::to_time_t(ts);
+    std::ostringstream expected;
+    expected << "[ORDER]"
+             << " id = 3"
+             << " stockName = BAC"
+             << " Qty = 10"
+             << " Price = 100.5"
+             << " ts = " << std::put_time(std::localtime(&tt), "%Y-%m-%d %H:%M:%S") << std::endl;
+
+    EXPECT_EQ(out, expected.str());
 }
 
 int main(int argc, char** argv)
