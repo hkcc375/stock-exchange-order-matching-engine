@@ -81,6 +81,7 @@ namespace Components {
         public:
             OrderBook(TradeBook& tb);
             void processOrderDetails(const std::string& stockName, const OrderType orderType, const double price, const int quantity);    };
+            void endOfDayCleanup();
 }
 
 // Utility Fn - converts given time format HH:MM  to YYYY-mm-dd HH:MM:SS;

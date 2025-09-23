@@ -16,15 +16,29 @@ int main()
     std::cout << "  SHOW   -> display all trades\n";
     std::cout << "  EXIT   -> quit\n";
 
+    bool eodCleanupDone = false;
+
     std::string line;
     while (true) {
+
+        auto now = std::chrono::system_clock::now();
+        auto window = getTradingWindow(now);
+
+        if (now >= window.second && !eodCleanupDone) {
+            orderBook.endOfDayCleanup();
+            eodCleanupDone = true;
+        } else if (now < window.first && eodCleanupDone) {
+            eodCleanupDone = false;
+        }
+
         std::cout << "\nEnter command (NEW, SHOW, EXIT): ";
         std::string cmd;
         std::getline(std::cin, cmd);
 
-        if (cmd == "EXIT")
+        if (cmd == "EXIT") {
+            orderBook.endOfDayCleanup();
             break;
-        else if (cmd == "SHOW") {
+        } else if (cmd == "SHOW") {
             tradeBook.displayAllTrades();
             continue;
         } else if (cmd == "NEW") {

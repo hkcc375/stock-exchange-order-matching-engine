@@ -269,6 +269,52 @@ void OrderBook::viewPlacedOrderDetails(const Order& o) const
               << " ts = " << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") << std::endl;
 }
 
+void OrderBook::endOfDayCleanup()
+{
+    auto cancelSide = [&](auto& outerMap, const char* sideName) {
+        for (auto outerMapIt = outerMap.begin(); outerMapIt != outerMap.end();) {
+            std::string stockName = outerMapIt->first;
+            auto& innerMap = outerMapIt->second;
+
+            for (auto innerMapIt = innerMap.begin(); it != innerMap.end();) {
+                double price = innerMapIt->first;
+                auto& orderLst = innerMapIt->second;
+
+                for (auto lit = orderLst.begin(); lit != orderLst.end();) {
+                    Order& order = *lit;
+
+                    std::cout << "[EOD CANCEL] side=" << sideName
+                              << " stock=" << stockName
+                              << " orderId=" << ord.getOrderID()
+                              << " qty=" << ord.getQuantity()
+                              << " price=" << ord.getPrice()
+                              << std::endl;
+
+                    lit = orderLst.erase(lit);
+                }
+
+                if (orderLst.empty()) {
+                    innerMapIt = innerMap.erase(innerMapIt);
+                } else {
+                    ++innerMapIt;
+                }
+            }
+
+            if (innerMap.empty()) {
+                outerMapIt = outerMap.erase(outerMapIt);
+            } else {
+                ++outerMapIt;
+            }
+        }
+    };
+
+    cancelSide(buyOrders, "BUY");
+    cancelSide(sellOrders, "SELL");
+
+    cout << "All orders removed\n"
+         << endl;
+}
+
 }
 
 std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr)
