@@ -140,6 +140,20 @@ TEST_F(TestOrderBook, ProcessOrderDetailsOutOfTradingHoursMatchesExpected)
     EXPECT_EQ(outputTwo, expected.str());
 }
 
+TEST_F(TestOrderBook, InvalidOrderDetailsMatchesExpected)
+{
+    auto ts = parseTimeString("12:00");
+
+    testing::internal::CaptureStdout();
+    orderBook.processOrderDetails("AAPL", OrderType::BUY, 0.0, 10, ts);
+    std::string output = testing::internal::GetCapturedStdout();
+
+    std::ostringstream expected;
+    expected << "Invalid Order Details" << std::endl;
+
+    EXPECT_EQ(output, expected.str());
+}
+
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

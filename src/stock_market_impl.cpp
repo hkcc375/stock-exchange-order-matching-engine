@@ -192,6 +192,8 @@ void OrderBook::processOrderDetails(const std::string& stockName, const OrderTyp
                 sellOrders[stockName][price].push_back(o);
             }
         }
+    } else {
+        std::cout << "Invalid Order Details" << std::endl;
     }
 }
 
