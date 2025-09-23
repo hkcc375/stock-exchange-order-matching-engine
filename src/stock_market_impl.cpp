@@ -2,9 +2,6 @@
 
 namespace Components {
 
-int OrderBook::totalOrders = 1;
-int TradeBook::totalTrades = 1;
-
 Order::Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty, std::chrono::system_clock::time_point time)
     : orderID(orderId)
     , stockName(stockName)
@@ -43,7 +40,14 @@ void TradeBook::recordTrade(const std::string& stockName, const int buyOrderId, 
 
     // Record time at which Trade was added to TradeBook;
     std::time_t now_time = std::chrono::system_clock::to_time_t(timestamp);
-    std::cout << "Trade added at " << std::put_time(std::localtime(&now_time), "%Y-%m-%d %H:%M:%S") << std::endl;
+    std::cout << "[TRADE EXECUTED]"
+              << " TradeID = " << t.getTradeID()
+              << " Stock = " << t.getStockName()
+              << " BuyOrderID = " << t.getMatchedTradeBuyOrderID()
+              << " SellOrderID = " << t.getMatchedTradeSellOrderID()
+              << " Quantity = " << t.getTradeQuantity()
+              << " Price = " << t.getTradePrice()
+              << " Timestamp = " << std::put_time(std::localtime(&now_time), "%Y-%m-%d %H:%M:%S") << std::endl;
 }
 
 void TradeBook::displayAllTrades() const

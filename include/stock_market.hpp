@@ -88,7 +88,7 @@ namespace Components {
     class TradeBook {
         // Maintains all successful trades recorded by the system;
         private:
-            static int totalTrades;
+            int totalTrades = 1;
             std::vector<Trade> trades{};
         public:
             void displayAllTrades() const;
@@ -100,7 +100,7 @@ namespace Components {
         private:
             // Dependency Injection;
             TradeBook& tradeBook;
-            static int totalOrders;
+            int totalOrders = 1;
             // stockName -> Price -> List of Orders (ordered by Timestamp);
             std::map<std::string, std::map<double, std::list<Order>, std::greater<double>>> buyOrders{};
             std::map<std::string, std::map<double, std::list<Order>>> sellOrders{};

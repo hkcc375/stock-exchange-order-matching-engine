@@ -74,7 +74,7 @@ TEST_F(TestOrderBook, DisplayAllTradesMatchesExpected)
     std::time_t tt = std::chrono::system_clock::to_time_t(timestamp);
     std::ostringstream expected;
     expected << "[TRADE]"
-             << " id = 2"
+             << " id = 1"
              << " stockName = AAPL"
              << " buyOrderID = 1"
              << " sellOrderID = 2"
@@ -111,7 +111,7 @@ TEST_F(TestOrderBook, ViewPlacedOrderDetailsMatchesExpected)
     std::time_t tt = std::chrono::system_clock::to_time_t(ts);
     std::ostringstream expected;
     expected << "[ORDER]"
-             << " id = 3"
+             << " id = 1"
              << " stockName = BAC"
              << " Qty = 10"
              << " Price = 100.5"
@@ -152,6 +152,54 @@ TEST_F(TestOrderBook, InvalidOrderDetailsMatchesExpected)
     expected << "Invalid Order Details" << std::endl;
 
     EXPECT_EQ(output, expected.str());
+}
+
+TEST_F(TestOrderBook, BuyMatchesSellMatchesExpected)
+{
+    auto marketTimeOne = parseTimeString("10:00");
+    auto marketTimeTwo = parseTimeString("10:05");
+
+    orderBook.processOrderDetails("AAPL", OrderType::SELL, 100.0, 5, marketTimeOne);
+    testing::internal::CaptureStdout();
+    orderBook.processOrderDetails("AAPL", OrderType::BUY, 101.5, 5, marketTimeTwo);
+    std::string output = testing::internal::GetCapturedStdout();
+
+    std::time_t tt = std::chrono::system_clock::to_time_t(marketTimeTwo);
+    std::ostringstream expectedOne;
+    expectedOne << "[ORDER]"
+                << " id = 2"
+                << " stockName = AAPL"
+                << " Qty = 5"
+                << " Price = 101.5"
+                << " ts = " << std::put_time(std::localtime(&tt), "%Y-%m-%d %H:%M:%S") << std::endl
+                << "[TRADE EXECUTED]"
+                << " TradeID = 1 Stock = AAPL BuyOrderID = 2 SellOrderID = 1 Quantity = 5 Price = 100 Timestamp = 2025-09-24 10:05:00" << std::endl;
+
+    EXPECT_EQ(output, expectedOne.str());
+}
+
+TEST_F(TestOrderBook, SellMatchesBuyMatchesExpected)
+{
+    auto marketTimeOne = parseTimeString("10:00");
+    auto marketTimeTwo = parseTimeString("10:05");
+
+    orderBook.processOrderDetails("AAPL", OrderType::BUY, 101.5, 5, marketTimeOne);
+    testing::internal::CaptureStdout();
+    orderBook.processOrderDetails("AAPL", OrderType::SELL, 100.0, 5, marketTimeTwo);
+    std::string output = testing::internal::GetCapturedStdout();
+
+    std::time_t tt = std::chrono::system_clock::to_time_t(marketTimeTwo);
+    std::ostringstream expectedOne;
+    expectedOne << "[ORDER]"
+                << " id = 2"
+                << " stockName = AAPL"
+                << " Qty = 5"
+                << " Price = 100"
+                << " ts = " << std::put_time(std::localtime(&tt), "%Y-%m-%d %H:%M:%S") << std::endl
+                << "[TRADE EXECUTED]"
+                << " TradeID = 1 Stock = AAPL BuyOrderID = 1 SellOrderID = 2 Quantity = 5 Price = 101.5 Timestamp = 2025-09-24 10:05:00" << std::endl;
+
+    EXPECT_EQ(output, expectedOne.str());
 }
 
 int main(int argc, char** argv)
