@@ -116,9 +116,9 @@ void TradeBook::displayAllTrades() const
     for (auto trade : trades) {
         auto tp = trade.getTimestamp();
         std::time_t t = std::chrono::system_clock::to_time_t(tp);
-        std::cout << "[TRADE] "
-                  << "id = " << trade.getTradeID()
-                  << "stockName = " << trade.getStockName()
+        std::cout << "[TRADE]"
+                  << " id = " << trade.getTradeID()
+                  << " stockName = " << trade.getStockName()
                   << " buyOrderID = " << trade.getMatchedTradeBuyOrderID()
                   << " sellOrderID = " << trade.getMatchedTradeSellOrderID()
                   << " Qty = " << trade.getTradeQuantity()
@@ -262,9 +262,9 @@ void OrderBook::viewPlacedOrderDetails(const Order& o) const
 {
     auto tp = o.getTimestamp();
     std::time_t t = std::chrono::system_clock::to_time_t(tp);
-    std::cout << "[ORDER] "
-              << "id = " << o.getOrderID()
-              << "stockName = " << o.getStockName()
+    std::cout << "[ORDER]"
+              << " id = " << o.getOrderID()
+              << " stockName = " << o.getStockName()
               << " Qty = " << o.getQuantity()
               << " Price = " << o.getPrice()
               << " ts = " << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") << std::endl;
@@ -284,11 +284,11 @@ void OrderBook::endOfDayCleanup()
                 for (auto lit = orderLst.begin(); lit != orderLst.end();) {
                     Order& order = *lit;
 
-                    std::cout << "[EOD CANCEL] side=" << sideName
-                              << " stock=" << stockName
-                              << " orderId=" << order.getOrderID()
-                              << " qty=" << order.getQuantity()
-                              << " price=" << order.getPrice()
+                    std::cout << "[EOD CANCEL] side = " << sideName
+                              << " stock = " << stockName
+                              << " orderId = " << order.getOrderID()
+                              << " qty = " << order.getQuantity()
+                              << " price = " << order.getPrice()
                               << std::endl;
 
                     lit = orderLst.erase(lit);
