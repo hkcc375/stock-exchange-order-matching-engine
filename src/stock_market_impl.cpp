@@ -15,13 +15,14 @@ Order::Order(int orderId, const std::string& stockName, OrderType orderType, dou
 {
 }
 
-Trade::Trade(int tradeId, const std::string& stockName, int buyOrderId, int sellOrderId, double price, int qty)
+Trade::Trade(int tradeId, const std::string& stockName, int buyOrderId, int sellOrderId, double price, int qty, std::chrono::system_clock::time_point timestamp)
     : tradeID(tradeId)
     , stockName(stockName)
     , buyOrderID(buyOrderId)
     , sellOrderID(sellOrderId)
     , price(price)
     , quantity(qty)
+    , timestamp(timestamp)
 {
 }
 
@@ -30,9 +31,9 @@ OrderBook::OrderBook(TradeBook& tb)
 {
 }
 
-void TradeBook::recordTrade(const std::string& stockName, const int buyOrderId, const int sellOrderId, const double price, const int qty)
+void TradeBook::recordTrade(const std::string& stockName, const int buyOrderId, const int sellOrderId, const double price, const int qty, const std::chrono::system_clock::time_point timestamp)
 {
-    const Trade t(TradeBook::totalTrades++, stockName, buyOrderId, sellOrderId, price, qty);
+    const Trade t(TradeBook::totalTrades++, stockName, buyOrderId, sellOrderId, price, qty, timestamp);
     trades.push_back(t);
 
     // Record time at which Trade was added to TradeBook;
@@ -89,7 +90,8 @@ void OrderBook::matchBuy(Order& buyOrder)
         buyOrder.setQuantity(buyOrder.getQuantity() - quantity);
 
         // A trade is generated here;
-        tradeBook.recordTrade(buyOrderStockName, buyOrder.getOrderID(), sellOrder.getOrderID(), minSellPrice, quantity);
+        auto timestamp = buyOrder.getTimestamp() > sellOrder.getTimestamp() ? buyOrder.getTimestamp() : sellOrder.getTimestamp();
+        tradeBook.recordTrade(buyOrderStockName, buyOrder.getOrderID(), sellOrder.getOrderID(), minSellPrice, quantity, timestamp);
 
         // If resting order's quantity becomes 0;
         if (sellOrder.getQuantity() == 0) {
@@ -139,7 +141,8 @@ void OrderBook::matchSell(Order& sellOrder)
         sellOrder.setQuantity(sellOrder.getQuantity() - quantity);
 
         // A trade is generated here;
-        tradeBook.recordTrade(sellOrderStockName, buyOrder.getOrderID(), sellOrder.getOrderID(), maxBuyPrice, quantity);
+        auto timestamp = buyOrder.getTimestamp() > sellOrder.getTimestamp() ? buyOrder.getTimestamp() : sellOrder.getTimestamp();
+        tradeBook.recordTrade(sellOrderStockName, buyOrder.getOrderID(), sellOrder.getOrderID(), maxBuyPrice, quantity, timestamp);
 
         // If resting order's quantity becomes 0;
         if (buyOrder.getQuantity() == 0) {

@@ -59,9 +59,9 @@ namespace Components {
             const int sellOrderID;
             const double price;
             const int quantity;
-            std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+            std::chrono::system_clock::time_point timestamp;
         public:
-            Trade(int tradeId, const std::string& stockName, int buyOrderId, int sellOrderId, double price, int qty);
+            Trade(int tradeId, const std::string& stockName, int buyOrderId, int sellOrderId, double price, int qty, std::chrono::system_clock::time_point timestamp);
             int getTradeID() const {
                 return tradeID;
             }
@@ -92,7 +92,7 @@ namespace Components {
             std::vector<Trade> trades{};
         public:
             void displayAllTrades() const;
-            void recordTrade(const std::string& stockName, const int buyOrderId, const int sellOrderId, const double price, const int qty);
+            void recordTrade(const std::string& stockName, const int buyOrderId, const int sellOrderId, const double price, const int qty, const std::chrono::system_clock::time_point timestamp);
     };
 
     class OrderBook {
