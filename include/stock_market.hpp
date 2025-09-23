@@ -27,13 +27,27 @@ namespace Components {
             std::chrono::system_clock::time_point timestamp;
         public:
             Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty, std::chrono::system_clock::time_point time);
-            int getOrderID() const;
-            double getPrice() const;
-            int getQuantity() const;
-            OrderType getOrderType() const;
-            const std::string& getStockName() const;
-            void setQuantity(int qty);
-            std::chrono::system_clock::time_point getTimestamp() const;
+            int getOrderID() const {
+                return orderID;
+            }
+            double getPrice() const {
+                return price;
+            }
+            int getQuantity() const {
+                return quantity;
+            }
+            OrderType getOrderType() const {
+                return orderType;
+            }
+            const std::string& getStockName() const {
+                return stockName;
+            }
+            void setQuantity(int qty) {
+                quantity = qty;
+            }
+            std::chrono::system_clock::time_point getTimestamp() const {
+                return timestamp;
+            }
     };
 
     class Trade {
@@ -48,13 +62,27 @@ namespace Components {
             std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
         public:
             Trade(int tradeId, const std::string& stockName, int buyOrderId, int sellOrderId, double price, int qty);
-            int getTradeID() const;
-            const std::string& getStockName() const;
-            int getMatchedTradeBuyOrderID() const;
-            int getMatchedTradeSellOrderID() const;
-            double getTradePrice() const;
-            int getTradeQuantity() const;
-            std::chrono::system_clock::time_point getTimestamp() const;
+            int getTradeID() const {
+                return tradeID;
+            }
+            const std::string& getStockName() const {
+                return stockName;
+            }
+            int getMatchedTradeBuyOrderID() const {
+                return buyOrderID;
+            }
+            int getMatchedTradeSellOrderID() const {
+                return sellOrderID;
+            }
+            double getTradePrice() const {
+                return price;
+            }
+            int getTradeQuantity() const {
+                return quantity;
+            }
+            std::chrono::system_clock::time_point getTimestamp() const {
+                return timestamp;
+            }
     };
 
     class TradeBook {
