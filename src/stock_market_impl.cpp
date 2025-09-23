@@ -184,11 +184,11 @@ void OrderBook::matchSell(Order& sellOrder)
     }
 }
 
-void OrderBook::processOrderDetails(const int userId, const OrderType orderType, const double price, const int quantity)
+void OrderBook::processOrderDetails(const string& stockName, const OrderType orderType, const double price, const int quantity)
 {
     // Only if quantity and price are positive, then an Order is created;
     if (quantity > 0 && price > 0) {
-        Order o(totalOrders++, orderType, price, quantity);
+        Order o(totalOrders++, stockName, orderType, price, quantity);
 
         /* Note : Here, matchOrders returns a boolean true/false, if the incoming order matched with an existing
            order; Their quantities are updated and a Trade object is generated; else, the order object is simply

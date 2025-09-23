@@ -29,7 +29,7 @@ namespace Components {
             const std::string stock;
             std::chrono::system_clock::time_point timestamp;
         public:
-            Order(int orderId, OrderType orderType, double price, int qty);
+            Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty);
             int getOrderID() const;
             double getPrice() const;
             int getQuantity() const;
@@ -77,13 +77,14 @@ namespace Components {
             TradeBook& tradeBook;
             static int totalOrders;
             // Price -> List of Orders (ordered by Timestamp);
-            std::map<double, std::list<Order>, std::greater<double>> buyOrders{};
-            std::map<double, std::list<Order>> sellOrders{};
+            std::map<std::string, std::map<double, std::list<Order>, std::greater<double>>> buyOrders{};
+            std::map<std::string, std::map<double, std::list<Order>>> sellOrders{};
             void matchBuy(Order& o);
             void matchSell(Order& o);
         public:
             OrderBook(TradeBook& tb);
-            void processOrderDetails(const int userId, const OrderType orderType, const double price, const int quantity);
+            void viewPlacedOrderDetails() const;
+            void processOrderDetails(const string& stockName, const OrderType orderType, const double price, const int quantity);
             void cancelOldOrder(const int orderId, const OrderType orderType, const double orderPrice); 
     };
 }

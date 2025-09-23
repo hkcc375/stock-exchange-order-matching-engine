@@ -43,60 +43,77 @@ int main()
 
     std::string line;
     while (true) {
-        std::cout << "\n> ";
-        std::getline(std::cin, line);
-        if (line.empty())
-            continue;
-
-        std::stringstream ss(line);
+        std::cout << "\nEnter command (NEW, CANCEL, SHOW, EXIT): ";
         std::string cmd;
-        ss >> cmd;
+        std::getline(std::cin, cmd);
 
-        if (cmd == "BUY") {
-            int userId, quantity;
-            double price;
-            ss >> userId >> price >> quantity;
-            if (ss.fail()) {
-                std::cout << "Invalid BUY command format.\n";
-                continue;
-            }
-            orderBook.processOrderDetails(userId, OrderType::BUY, price, quantity);
-            std::cout << "BUY order added for user " << userId << "\n";
-        } else if (cmd == "SELL") {
-            int userId, quantity;
-            double price;
-            ss >> userId >> price >> quantity;
-            if (ss.fail()) {
-                std::cout << "Invalid SELL command format.\n";
-                continue;
-            }
-            orderBook.processOrderDetails(userId, OrderType::SELL, price, quantity);
-            std::cout << "SELL order added for user " << userId << "\n";
+        if (cmd == "EXIT")
+            break;
+        else if (cmd == "SHOW") {
+            tradeBook.displayAllTrades();
+            continue;
         } else if (cmd == "CANCEL") {
             int orderId;
             std::string typeStr;
             double price;
-            ss >> orderId >> typeStr >> price;
-            if (ss.fail()) {
-                std::cout << "Invalid CANCEL command format.\n";
-                continue;
-            }
+
+            std::cout << "Enter order ID to cancel: ";
+            std::cin >> orderId;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            std::cout << "Enter order type (BUY/SELL): ";
+            std::cin >> typeStr;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            std::cout << "Enter order price: ";
+            std::cin >> price;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
             OrderType type;
             if (typeStr == "BUY")
                 type = OrderType::BUY;
             else if (typeStr == "SELL")
                 type = OrderType::SELL;
             else {
-                std::cout << "Invalid order type. Use BUY or SELL.\n";
+                std::cout << "Invalid order type.\n";
                 continue;
             }
+
             orderBook.cancelOldOrder(orderId, type, price);
-        } else if (cmd == "SHOW") {
-            tradeBook.displayAllTrades();
-        } else if (cmd == "EXIT") {
-            break;
+            continue;
+        } else if (cmd == "NEW") {
+            std::string typeStr, stock;
+            double price;
+            int quantity, userId;
+
+            std::cout << "Enter Order Type (BUY/SELL): ";
+            std::getline(std::cin, typeStr);
+
+            std::cout << "Enter Stock Symbol: ";
+            std::getline(std::cin, stock);
+
+            std::cout << "Enter Price: ";
+            std::cin >> price;
+
+            std::cout << "Enter Quantity: ";
+            std::cin >> quantity;
+
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            OrderType type;
+            if (typeStr == "BUY")
+                type = OrderType::BUY;
+            else if (typeStr == "SELL")
+                type = OrderType::SELL;
+            else {
+                std::cout << "Invalid order type. Must be BUY or SELL.\n";
+                continue;
+            }
+
+            orderBook.processOrderDetails(userId, type, price, quantity, stock);
+            std::cout << typeStr << " order added for user " << userId << " on " << stock << "\n";
         } else {
-            std::cout << "Unknown command. Try BUY, SELL, CANCEL, SHOW, EXIT.\n";
+            std::cout << "Unknown command. Use NEW, CANCEL, SHOW, or EXIT.\n";
         }
     }
 
