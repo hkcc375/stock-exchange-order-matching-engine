@@ -43,6 +43,11 @@ inline double Trade::getTradePrice() const
     return price;
 }
 
+inline const std::string& Trade::getStockName() const
+{
+    return stockName;
+}
+
 inline int Trade::getTradeQuantity() const
 {
     return quantity;
