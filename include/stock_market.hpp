@@ -15,9 +15,6 @@ namespace Components {
 
     enum class OrderType {BUY, SELL};
 
-    // I now do not see the point of maintaining OrderStatus;
-    enum class OrderStatus {PLACED, PARTIALLY_FILLED, FILLED, CANCELLED};
-
     class Order {
         // Properties of a placed Order;
         private:
@@ -34,10 +31,8 @@ namespace Components {
             double getPrice() const;
             int getQuantity() const;
             OrderType getOrderType() const;
-            OrderStatus getOrderStatus() const;
             const std::string& getStockName() const;
             void setQuantity(int qty);
-            void setOrderStatus(OrderStatus status);
             std::chrono::system_clock::time_point getTimestamp() const;
     };
 
@@ -85,7 +80,7 @@ namespace Components {
             void matchSell(Order& o);
         public:
             OrderBook(TradeBook& tb);
-            void viewPlacedOrderDetails() const;
+            void viewPlacedOrderDetails(const Order& o) const;
             void processOrderDetails(const string& stockName, const OrderType orderType, const double price, const int quantity);    };
 }
 

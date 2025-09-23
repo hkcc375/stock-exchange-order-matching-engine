@@ -84,19 +84,9 @@ inline OrderType Order::getOrderType() const
     return orderType;
 }
 
-inline OrderStatus Order::getOrderStatus() const
-{
-    return orderStatus;
-}
-
 inline void Order::setQuantity(int qty)
 {
     quantity = qty;
-}
-
-inline void Order::setOrderStatus(OrderStatus status)
-{
-    orderStatus = status;
 }
 
 inline std::chrono::system_clock::time_point Order::getTimestamp() const
@@ -258,6 +248,18 @@ void OrderBook::processOrderDetails(const string& stockName, const OrderType ord
             }
         }
     }
+}
+
+void OrderBook::viewPlacedOrderDetails(const Order& o) const
+{
+    auto tp = o.getTimestamp();
+    std::time_t t = std::chrono::system_clock::to_time_t(tp);
+    std::cout << "[ORDER] "
+              << "id = " << o.getOrderID()
+              << "stockName = " << o.getStockName()
+              << " Qty = " << o.getQuantity()
+              << " Price = " << o.getPrice()
+              << " ts = " << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") << std::endl;
 }
 
 }
