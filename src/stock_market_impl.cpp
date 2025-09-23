@@ -158,7 +158,7 @@ void OrderBook::matchBuy(Order& buyOrder)
         buyOrder.setQuantity(buyOrder.getQuantity() - quantity);
 
         // A trade is generated here;
-        tradeBook.recordTrade(buyOrder.getOrderID(), sellOrder.getOrderID(), minSellPrice, quantity);
+        tradeBook.recordTrade(buyOrderStockName, buyOrder.getOrderID(), sellOrder.getOrderID(), minSellPrice, quantity);
 
         // If resting order's quantity becomes 0;
         if (sellOrder.getQuantity() == 0) {
@@ -208,7 +208,7 @@ void OrderBook::matchSell(Order& sellOrder)
         sellOrder.setQuantity(sellOrder.getQuantity() - quantity);
 
         // A trade is generated here;
-        tradeBook.recordTrade(buyOrder.getOrderID(), sellOrder.getOrderID(), maxBuyPrice, quantity);
+        tradeBook.recordTrade(sellOrderStockName, buyOrder.getOrderID(), sellOrder.getOrderID(), maxBuyPrice, quantity);
 
         // If resting order's quantity becomes 0;
         if (buyOrder.getQuantity() == 0) {
@@ -226,11 +226,12 @@ void OrderBook::matchSell(Order& sellOrder)
     }
 }
 
-void OrderBook::processOrderDetails(const string& stockName, const OrderType orderType, const double price, const int quantity)
+void OrderBook::processOrderDetails(const std::string& stockName, const OrderType orderType, const double price, const int quantity)
 {
     // Only if quantity and price are positive, then an Order is created;
     if (quantity > 0 && price > 0) {
         Order o(totalOrders++, stockName, orderType, price, quantity);
+        viewPlacedOrderDetails(o);
 
         /* Note : Here, matchOrders returns a boolean true/false, if the incoming order matched with an existing
            order; Their quantities are updated and a Trade object is generated; else, the order object is simply
@@ -239,12 +240,12 @@ void OrderBook::processOrderDetails(const string& stockName, const OrderType ord
         if (orderType == OrderType::BUY) {
             matchBuy(o);
             if (o.getQuantity() > 0) {
-                buyOrders[price].push_back(o);
+                buyOrders[stockName][price].push_back(o);
             }
         } else {
             matchSell(o);
             if (o.getQuantity() > 0) {
-                sellOrders[price].push_back(o);
+                sellOrders[stockName][price].push_back(o);
             }
         }
     }

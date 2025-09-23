@@ -10,6 +10,7 @@
 #include <queue>
 #include <list>
 #include <iomanip>
+#include <sstream>
 
 namespace Components {
 
@@ -20,7 +21,6 @@ namespace Components {
         private:
             const int orderID;
             const OrderType orderType;
-            OrderStatus orderStatus = OrderStatus::PLACED;
             const double price;
             int quantity;
             const std::string stockName;
@@ -64,8 +64,7 @@ namespace Components {
             std::vector<Trade> trades{};
         public:
             void displayAllTrades() const;
-            void recordTrade(const int buyOrderId, const int sellOrderId, const double price, const int qty);
-            // void queryTrade(const Trade& t) const;
+            void recordTrade(const std::string& stockName, const int buyOrderId, const int sellOrderId, const double price, const int qty);
     };
 
     class OrderBook {
@@ -78,10 +77,10 @@ namespace Components {
             std::map<std::string, std::map<double, std::list<Order>>> sellOrders{};
             void matchBuy(Order& o);
             void matchSell(Order& o);
+            void viewPlacedOrderDetails(const Order& o) const;
         public:
             OrderBook(TradeBook& tb);
-            void viewPlacedOrderDetails(const Order& o) const;
-            void processOrderDetails(const string& stockName, const OrderType orderType, const double price, const int quantity);    };
+            void processOrderDetails(const std::string& stockName, const OrderType orderType, const double price, const int quantity);    };
 }
 
 std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr);

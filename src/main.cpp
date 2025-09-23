@@ -30,7 +30,7 @@ int main()
         } else if (cmd == "NEW") {
             std::string typeStr, stock;
             double price;
-            int quantity, userId;
+            int quantity;
 
             std::cout << "Enter Order Type (BUY/SELL): ";
             std::getline(std::cin, typeStr);
@@ -56,8 +56,7 @@ int main()
                 continue;
             }
 
-            orderBook.processOrderDetails(userId, type, price, quantity, stock);
-            std::cout << typeStr << " order added for user " << userId << " on " << stock << "\n";
+            orderBook.processOrderDetails(stock, type, price, quantity);
         } else {
             std::cout << "Unknown command. Use NEW, SHOW, or EXIT.\n";
         }
