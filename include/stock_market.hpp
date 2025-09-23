@@ -26,7 +26,7 @@ namespace Components {
             OrderStatus orderStatus = OrderStatus::PLACED;
             const double price;
             int quantity;
-            const std::string stock;
+            const std::string stockName;
             std::chrono::system_clock::time_point timestamp;
         public:
             Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty);
@@ -35,7 +35,7 @@ namespace Components {
             int getQuantity() const;
             OrderType getOrderType() const;
             OrderStatus getOrderStatus() const;
-            const std::string& getStock() const;
+            const std::string& getStockName() const;
             void setQuantity(int qty);
             void setOrderStatus(OrderStatus status);
             std::chrono::system_clock::time_point getTimestamp() const;

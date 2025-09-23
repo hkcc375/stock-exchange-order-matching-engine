@@ -7,15 +7,16 @@ int TradeBook::totalTrades = 1;
 
 Order::Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty)
     : orderID(orderId)
-    , stock(stockName)
+    , stockName(stockName)
     , orderType(orderType)
     , price(price)
     , quantity(qty)
 {
 }
 
-Trade::Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty)
+Trade::Trade(int tradeId, const std::string& stockName, int buyOrderId, int sellOrderId, double price, int qty)
     : tradeID(tradeId)
+    , stockName(stockName)
     , buyOrderID(buyOrderId)
     , sellOrderID(sellOrderId)
     , price(price)
@@ -63,9 +64,9 @@ inline int Order::getOrderID() const
     return orderID;
 }
 
-inline const std::string& Order::getStock() const
+inline const std::string& Order::getStockName() const
 {
-    return stock;
+    return stockName;
 }
 
 inline double Order::getPrice() const
@@ -137,56 +138,100 @@ void TradeBook::displayAllTrades() const
 
 void OrderBook::matchBuy(Order& buyOrder)
 {
-    while (buyOrder.getQuantity() > 0 && !sellOrders.empty()) {
-        auto sellIt = sellOrders.begin();
+    // Finds the stockName of buyOrder in sellOrderBook;
+    const std::string& buyOrderStockName = buyOrder.getStockName();
+    auto sellIter = sellOrders.find(buyOrderStockName);
+
+    // While there exists a stock in sellOrders with the given stockName &&
+    // the incoming buyOrder's quantity is positive &&
+    // there exist price levels for this stock;
+    while (sellIter != sellOrders.end() && buyOrder.getQuantity() > 0 && !sellIter->second.empty()) {
+
+        // Obtains the sellPriceMap for a particular stockName;
+        auto& sellPriceMap = sellIter->second;
+
+        // Obtains the sellOrder with minimum selling price;
+        auto sellIt = sellPriceMap.begin();
         double minSellPrice = sellIt->first;
 
-        // buyOrder's price >= minSellPrice;
+        // CONDITION for Trade : buyOrder's price >= minSellPrice;
         if (buyOrder.getPrice() < minSellPrice)
             break;
 
+        // Obtain the sellOrderList, which is ordered on the basis of timestamp;
         auto& sellOrdersLst = sellIt->second;
         Order& sellOrder = sellOrdersLst.front();
 
+        // Update the quantities of buyOrder and sellOrder;
         int quantity = std::min(sellOrder.getQuantity(), buyOrder.getQuantity());
         sellOrder.setQuantity(sellOrder.getQuantity() - quantity);
         buyOrder.setQuantity(buyOrder.getQuantity() - quantity);
 
         // A trade is generated here;
-        tradeBook.recordTrade(buyOrder.getOrderID(), sellOrder.getOrderID(), sellOrder.getPrice(), quantity);
+        tradeBook.recordTrade(buyOrder.getOrderID(), sellOrder.getOrderID(), minSellPrice, quantity);
 
+        // If resting order's quantity becomes 0;
         if (sellOrder.getQuantity() == 0) {
             sellOrdersLst.pop_front();
             if (sellOrdersLst.empty())
-                sellOrders.erase(sellIt);
+                sellPriceMap.erase(sellIt);
+        }
+
+        // If ever, the stock has no more price levels, then cleanup;
+        if (sellPriceMap.empty()) {
+            sellOrders.erase(sellIter);
+            // No more trades can now be executed for this stock;
+            break;
         }
     }
 }
 
 void OrderBook::matchSell(Order& sellOrder)
 {
-    while (sellOrder.getQuantity() > 0 && !buyOrders.empty()) {
-        auto buyIt = buyOrders.begin();
+    // Finds the stockName of sellOrder in buyOrderBook;
+    const std::string& sellOrderStockName = sellOrder.getStockName();
+    auto buyIter = buyOrders.find(sellOrderStockName);
+
+    // While there exists a stock in buyOrders with the given stockName &&
+    // the incoming sellOrder's quantity is positive &&
+    // there exist price levels for this stock;
+    while (buyIter != buyOrders.end() && sellOrder.getQuantity() > 0 && !buyIter->second.empty()) {
+
+        // Obtain the buyPriceMap for a particular stockName;
+        auto& buyPriceMap = buyIter->second;
+
+        // Obtain the buyOrder with maximum buying price;
+        auto buyIt = buyPriceMap.begin();
         double maxBuyPrice = buyIt->first;
 
-        // sellOrder's price <= maxBuyPrice;
+        // CONDITION FOR TRADE : sellOrder's price <= maxBuyPrice;
         if (sellOrder.getPrice() > maxBuyPrice)
             break;
 
+        // Obtain the buyOrderList, which is ordered on the basis of timestamp;
         auto& buyOrdersLst = buyIt->second;
         Order& buyOrder = buyOrdersLst.front();
 
+        // Update the quantities of buyOrder and sellOrder;
         int quantity = std::min(buyOrder.getQuantity(), sellOrder.getQuantity());
         buyOrder.setQuantity(buyOrder.getQuantity() - quantity);
         sellOrder.setQuantity(sellOrder.getQuantity() - quantity);
 
         // A trade is generated here;
-        tradeBook.recordTrade(buyOrder.getOrderID(), sellOrder.getOrderID(), buyOrder.getPrice(), quantity);
+        tradeBook.recordTrade(buyOrder.getOrderID(), sellOrder.getOrderID(), maxBuyPrice, quantity);
 
+        // If resting order's quantity becomes 0;
         if (buyOrder.getQuantity() == 0) {
             buyOrdersLst.pop_front();
             if (buyOrdersLst.empty())
-                buyOrders.erase(buyIt);
+                buyPriceMap.erase(buyIt);
+        }
+
+        // If ever, the stock has no more price levels, then cleanup;
+        if (buyPriceMap.empty()) {
+            buyOrders.erase(buyIter);
+            // No more trades can now be executed for this stock;
+            break;
         }
     }
 }
