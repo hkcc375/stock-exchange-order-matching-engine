@@ -37,8 +37,7 @@ void TradeBook::recordTrade(const std::string& stockName, const int buyOrderId, 
     trades.push_back(t);
 
     // Record time at which Trade was added to TradeBook;
-    auto now = std::chrono::system_clock::now();
-    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    std::time_t now_time = std::chrono::system_clock::to_time_t(timestamp);
     std::cout << "Trade added at " << std::put_time(std::localtime(&now_time), "%Y-%m-%d %H:%M:%S") << std::endl;
 }
 
