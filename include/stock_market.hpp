@@ -26,7 +26,7 @@ namespace Components {
             const std::string stockName;
             std::chrono::system_clock::time_point timestamp;
         public:
-            Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty);
+            Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty, std::chrono::system_clock::time_point time);
             int getOrderID() const;
             double getPrice() const;
             int getQuantity() const;
@@ -80,8 +80,9 @@ namespace Components {
             void viewPlacedOrderDetails(const Order& o) const;
         public:
             OrderBook(TradeBook& tb);
-            void processOrderDetails(const std::string& stockName, const OrderType orderType, const double price, const int quantity);    };
-            void endOfDayCleanup();
+            void processOrderDetails(const std::string& stockName, const OrderType orderType, const double price, const int quantity, const std::chrono::system_clock::time_point time);
+            void endOfDayCleanup();    
+    };
 }
 
 // Utility Fn - converts given time format HH:MM  to YYYY-mm-dd HH:MM:SS;
@@ -90,5 +91,7 @@ std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr
 // Utility Fn - checks if the user provided time is within trading hours;
 std::pair<std::chrono::system_clock::time_point, std::chrono::system_clock::time_point>
 getTradingWindow(const std::chrono::system_clock::time_point& anyTimeOnDay);
+
+bool isWithinTradingHours(const std::chrono::system_clock::time_point& now);
 
 #endif

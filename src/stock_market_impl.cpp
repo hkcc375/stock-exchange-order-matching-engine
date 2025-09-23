@@ -5,12 +5,13 @@ namespace Components {
 int OrderBook::totalOrders = 1;
 int TradeBook::totalTrades = 1;
 
-Order::Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty)
+Order::Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty, std::chrono::system_clock::time_point time)
     : orderID(orderId)
     , stockName(stockName)
     , orderType(orderType)
     , price(price)
     , quantity(qty)
+    , timestamp(time)
 {
 }
 
@@ -229,7 +230,7 @@ void OrderBook::matchSell(Order& sellOrder)
 void OrderBook::processOrderDetails(const std::string& stockName, const OrderType orderType, const double price, const int quantity, const std::chrono::system_clock::time_point time)
 {
     // Reject Out-Of-Hours orders;
-    if (!isWithinTradingHours(timestamp)) {
+    if (!isWithinTradingHours(time)) {
         std::cout << "Order rejected: outside trading hours\n";
         return;
     }
@@ -276,7 +277,7 @@ void OrderBook::endOfDayCleanup()
             std::string stockName = outerMapIt->first;
             auto& innerMap = outerMapIt->second;
 
-            for (auto innerMapIt = innerMap.begin(); it != innerMap.end();) {
+            for (auto innerMapIt = innerMap.begin(); innerMapIt != innerMap.end();) {
                 double price = innerMapIt->first;
                 auto& orderLst = innerMapIt->second;
 
@@ -285,9 +286,9 @@ void OrderBook::endOfDayCleanup()
 
                     std::cout << "[EOD CANCEL] side=" << sideName
                               << " stock=" << stockName
-                              << " orderId=" << ord.getOrderID()
-                              << " qty=" << ord.getQuantity()
-                              << " price=" << ord.getPrice()
+                              << " orderId=" << order.getOrderID()
+                              << " qty=" << order.getQuantity()
+                              << " price=" << order.getPrice()
                               << std::endl;
 
                     lit = orderLst.erase(lit);
@@ -311,10 +312,44 @@ void OrderBook::endOfDayCleanup()
     cancelSide(buyOrders, "BUY");
     cancelSide(sellOrders, "SELL");
 
-    cout << "All orders removed\n"
-         << endl;
+    std::cout << "All orders removed\n"
+              << std::endl;
 }
 
+}
+
+bool isWithinTradingHours(const std::chrono::system_clock::time_point& now)
+{
+    std::time_t tt = std::chrono::system_clock::to_time_t(now);
+    std::tm local = *std::localtime(&tt);
+    int hh = local.tm_hour;
+    int mm = local.tm_min;
+
+    // trading window: 09:15 <= time < 15:30
+    bool afterOpen = (hh > 9) || (hh == 9 && mm >= 15);
+    bool beforeClose = (hh < 15) || (hh == 15 && mm < 30);
+    return afterOpen && beforeClose;
+}
+
+std::pair<std::chrono::system_clock::time_point, std::chrono::system_clock::time_point>
+getTradingWindow(const std::chrono::system_clock::time_point& anyTimeOnDay)
+{
+    std::time_t tt = std::chrono::system_clock::to_time_t(anyTimeOnDay);
+    std::tm day = *std::localtime(&tt);
+
+    std::tm open_tm = day;
+    open_tm.tm_hour = 9;
+    open_tm.tm_min = 15;
+    open_tm.tm_sec = 0;
+
+    std::tm close_tm = day;
+    close_tm.tm_hour = 15;
+    close_tm.tm_min = 30;
+    close_tm.tm_sec = 0;
+
+    auto open_tp = std::chrono::system_clock::from_time_t(std::mktime(&open_tm));
+    auto close_tp = std::chrono::system_clock::from_time_t(std::mktime(&close_tm));
+    return { open_tp, close_tp };
 }
 
 std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr)
@@ -338,25 +373,4 @@ std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr
 
     std::time_t time_tt = std::mktime(&t);
     return std::chrono::system_clock::from_time_t(time_tt);
-}
-
-std::pair<std::chrono::system_clock::time_point, std::chrono::system_clock::time_point>
-getTradingWindow(const std::chrono::system_clock::time_point& anyTimeOnDay)
-{
-    std::time_t tt = std::chrono::system_clock::to_time_t(anyTimeOnDay);
-    std::tm day = *std::localtime(&tt);
-
-    std::tm open_tm = day;
-    open_tm.tm_hour = 9;
-    open_tm.tm_min = 15;
-    open_tm.tm_sec = 0;
-
-    std::tm close_tm = day;
-    close_tm.tm_hour = 15;
-    close_tm.tm_min = 30;
-    close_tm.tm_sec = 0;
-
-    auto open_tp = std::chrono::system_clock::from_time_t(std::mktime(&open_tm));
-    auto close_tp = std::chrono::system_clock::from_time_t(std::mktime(&close_tm));
-    return { open_tp, close_tp };
 }
