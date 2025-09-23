@@ -45,14 +45,16 @@ namespace Components {
         // Properties of a successful Trade;
         private:
             const int tradeID;
+            const std::string& stockName;
             const int buyOrderID;
             const int sellOrderID;
             const double price;
             const int quantity;
             std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
         public:
-            Trade(int tradeId, int buyOrderId, int sellOrderId, double price, int qty);
+            Trade(int tradeId, const std::string& stockName, int buyOrderId, int sellOrderId, double price, int qty);
             int getTradeID() const;
+            const std::string& getStockName() const;
             int getMatchedTradeBuyOrderID() const;
             int getMatchedTradeSellOrderID() const;
             double getTradePrice() const;
@@ -76,7 +78,7 @@ namespace Components {
             // Dependency Injection;
             TradeBook& tradeBook;
             static int totalOrders;
-            // Price -> List of Orders (ordered by Timestamp);
+            // stockName -> Price -> List of Orders (ordered by Timestamp);
             std::map<std::string, std::map<double, std::list<Order>, std::greater<double>>> buyOrders{};
             std::map<std::string, std::map<double, std::list<Order>>> sellOrders{};
             void matchBuy(Order& o);
@@ -88,5 +90,7 @@ namespace Components {
             void cancelOldOrder(const int orderId, const OrderType orderType, const double orderPrice); 
     };
 }
+
+std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr);
 
 #endif

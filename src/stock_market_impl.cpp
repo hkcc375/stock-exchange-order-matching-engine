@@ -5,8 +5,9 @@ namespace Components {
 int OrderBook::totalOrders = 1;
 int TradeBook::totalTrades = 1;
 
-Order::Order(int orderId, OrderType orderType, double price, int qty)
+Order::Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty)
     : orderID(orderId)
+    , stock(stockName)
     , orderType(orderType)
     , price(price)
     , quantity(qty)
@@ -102,9 +103,9 @@ OrderBook::OrderBook(TradeBook& tb)
 {
 }
 
-void TradeBook::recordTrade(const int buyOrderId, const int sellOrderId, const double price, const int qty)
+void TradeBook::recordTrade(const std::string& stockName, const int buyOrderId, const int sellOrderId, const double price, const int qty)
 {
-    const Trade t(TradeBook::totalTrades++, buyOrderId, sellOrderId, price, qty);
+    const Trade t(TradeBook::totalTrades++, stockName, buyOrderId, sellOrderId, price, qty);
     trades.push_back(t);
 
     // Record time at which Trade was added to TradeBook;
@@ -119,7 +120,8 @@ void TradeBook::displayAllTrades() const
         auto tp = trade.getTimestamp();
         std::time_t t = std::chrono::system_clock::to_time_t(tp);
         std::cout << "[TRADE] "
-                  << "id =" << trade.getTradeID()
+                  << "id = " << trade.getTradeID()
+                  << "stockName = " << trade.getStockName()
                   << " buyOrderID = " << trade.getMatchedTradeBuyOrderID()
                   << " sellOrderID = " << trade.getMatchedTradeSellOrderID()
                   << " Qty = " << trade.getTradeQuantity()
@@ -249,4 +251,27 @@ void OrderBook::cancelOldOrder(const int orderId, const OrderType orderType, con
     }
 }
 
+}
+
+std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr)
+{
+    // timeStr format: "HH:MM"
+    std::tm t = {};
+    std::istringstream ss(timeStr);
+    ss >> std::get_time(&t, "%H:%M");
+    if (ss.fail()) {
+        throw std::runtime_error("Invalid time format: " + timeStr);
+    }
+
+    // Set date to today (or any default date)
+    auto now = std::chrono::system_clock::now();
+    std::time_t tt = std::chrono::system_clock::to_time_t(now);
+    std::tm today = *std::localtime(&tt);
+
+    t.tm_mday = today.tm_mday;
+    t.tm_mon = today.tm_mon;
+    t.tm_year = today.tm_year;
+
+    std::time_t time_tt = std::mktime(&t);
+    return std::chrono::system_clock::from_time_t(time_tt);
 }
