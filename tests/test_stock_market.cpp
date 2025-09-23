@@ -120,6 +120,26 @@ TEST_F(TestOrderBook, ViewPlacedOrderDetailsMatchesExpected)
     EXPECT_EQ(out, expected.str());
 }
 
+TEST_F(TestOrderBook, ProcessOrderDetailsOutOfTradingHoursMatchesExpected)
+{
+    auto tsOne = parseTimeString("08:00");
+    auto tsTwo = parseTimeString("16:00");
+
+    testing::internal::CaptureStdout();
+    orderBook.processOrderDetails("AAPL", OrderType::BUY, 100.0, 10, tsOne);
+    std::string outputOne = testing::internal::GetCapturedStdout();
+
+    testing::internal::CaptureStdout();
+    orderBook.processOrderDetails("AAPL", OrderType::BUY, 100.0, 10, tsTwo);
+    std::string outputTwo = testing::internal::GetCapturedStdout();
+
+    std::ostringstream expected;
+    expected << "Order rejected: outside trading hours" << std::endl;
+
+    EXPECT_EQ(outputOne, expected.str());
+    EXPECT_EQ(outputTwo, expected.str());
+}
+
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
