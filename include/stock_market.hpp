@@ -86,9 +86,7 @@ namespace Components {
         public:
             OrderBook(TradeBook& tb);
             void viewPlacedOrderDetails() const;
-            void processOrderDetails(const string& stockName, const OrderType orderType, const double price, const int quantity);
-            void cancelOldOrder(const int orderId, const OrderType orderType, const double orderPrice); 
-    };
+            void processOrderDetails(const string& stockName, const OrderType orderType, const double price, const int quantity);    };
 }
 
 std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr);

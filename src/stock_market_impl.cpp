@@ -260,47 +260,6 @@ void OrderBook::processOrderDetails(const string& stockName, const OrderType ord
     }
 }
 
-/*
- * Below function cancels an order that has orderId as its id, orderType as its type and orderPrice as its price;
- * If such an order is not present, its prints "Invalid Order Cancellation";
- */
-void OrderBook::cancelOldOrder(const int orderId, const OrderType orderType, const double orderPrice)
-{
-    if (orderType == OrderType::BUY) {
-        auto it = buyOrders.find(orderPrice);
-        if (it != buyOrders.end()) {
-            auto& orderLst = it->second;
-            // Iterate through the list of orders and remove the order whose id is orderId;
-            for (auto lit = orderLst.begin(); lit != orderLst.end(); lit++) {
-                if (lit->getOrderID() == orderId) {
-                    orderLst.erase(lit);
-                    if (orderLst.empty())
-                        buyOrders.erase(it);
-                    std::cout << "Cancelled BUY Order " << orderId << std::endl;
-                    return;
-                }
-            }
-        }
-        std::cout << "Invalid BUY Order Cancellation" << std::endl;
-    } else {
-        auto it = sellOrders.find(orderPrice);
-        if (it != sellOrders.end()) {
-            auto& orderLst = it->second;
-            // Iterate through the list of orders and remove the order whose id is orderId;
-            for (auto lit = orderLst.begin(); lit != orderLst.end(); lit++) {
-                if (lit->getOrderID() == orderId) {
-                    orderLst.erase(lit);
-                    if (orderLst.empty())
-                        sellOrders.erase(it);
-                    std::cout << "Cancelled SELL Order " << orderId << std::endl;
-                    return;
-                }
-            }
-        }
-        std::cout << "Invalid SELL Order Cancellation" << std::endl;
-    }
-}
-
 }
 
 std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr)
