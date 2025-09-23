@@ -50,27 +50,39 @@ protected:
     }
 };
 
+// Fn : Checks if recordTrade works as expected;
 TEST_F(TestOrderBook, RecordTradeMatchesExpected)
 {
-    EXPECT_EQ(tradeBook.getTrades().size(), 0);
-
     auto timestamp = parseTimeString("10:00");
-    tradeBook.recordTrade("AAPL", 1, 2, 150.0, 10, timestamp);
 
-    EXPECT_EQ(tradeBook.getTrades().size(), 1);
+    testing::internal::CaptureStdout();
+    tradeBook.recordTrade("AAPL", 1, 2, 150.0, 10, timestamp);
+    std::string output = testing::internal::GetCapturedStdout();
+
+    std::time_t tt = std::chrono::system_clock::to_time_t(timestamp);
+    std::ostringstream expected;
+    expected << "[TRADE EXECUTED]"
+             << " TradeID = 1"
+             << " Stock = AAPL"
+             << " BuyOrderID = 1"
+             << " SellOrderID = 2"
+             << " Quantity = 10"
+             << " Price = 150"
+             << " Timestamp = " << std::put_time(std::localtime(&tt), "%Y-%m-%d %H:%M:%S") << std::endl;
+
+    EXPECT_EQ(output, expected.str());
 }
 
+// Fn : Checks if displayAllTrades works as expected;
 TEST_F(TestOrderBook, DisplayAllTradesMatchesExpected)
 {
     auto timestamp = parseTimeString("10:00");
     tradeBook.recordTrade("AAPL", 1, 2, 150.0, 10, timestamp);
 
-    // Captures output of displayAllTrades;
     testing::internal::CaptureStdout();
     tradeBook.displayAllTrades();
     std::string output = testing::internal::GetCapturedStdout();
 
-    // Build the expected string;
     std::time_t tt = std::chrono::system_clock::to_time_t(timestamp);
     std::ostringstream expected;
     expected << "[TRADE]"
@@ -85,6 +97,7 @@ TEST_F(TestOrderBook, DisplayAllTradesMatchesExpected)
     EXPECT_EQ(output, expected.str());
 }
 
+// Fn : Checks if endOfDayCleanup works as expected;
 TEST_F(TestOrderBook, EndOfDayCleanupMatchesExpected)
 {
 
@@ -100,6 +113,7 @@ TEST_F(TestOrderBook, EndOfDayCleanupMatchesExpected)
     EXPECT_NE(output.find("All orders removed"), std::string::npos);
 }
 
+// Fn : Checks if viewPlacedOrderDetails works as expected;
 TEST_F(TestOrderBook, ViewPlacedOrderDetailsMatchesExpected)
 {
     auto ts = parseTimeString("10:30");
@@ -120,6 +134,7 @@ TEST_F(TestOrderBook, ViewPlacedOrderDetailsMatchesExpected)
     EXPECT_EQ(out, expected.str());
 }
 
+// Fn : Checks if processOrderDetails works as expected;
 TEST_F(TestOrderBook, ProcessOrderDetailsOutOfTradingHoursMatchesExpected)
 {
     auto tsOne = parseTimeString("08:00");
@@ -140,6 +155,7 @@ TEST_F(TestOrderBook, ProcessOrderDetailsOutOfTradingHoursMatchesExpected)
     EXPECT_EQ(outputTwo, expected.str());
 }
 
+// Fn : Checks if processOrderDetails works as expected;
 TEST_F(TestOrderBook, InvalidOrderDetailsMatchesExpected)
 {
     auto ts = parseTimeString("12:00");
@@ -154,6 +170,7 @@ TEST_F(TestOrderBook, InvalidOrderDetailsMatchesExpected)
     EXPECT_EQ(output, expected.str());
 }
 
+// Fn : Checks if matchSell works as expected;
 TEST_F(TestOrderBook, BuyMatchesSellMatchesExpected)
 {
     auto marketTimeOne = parseTimeString("10:00");
@@ -178,6 +195,7 @@ TEST_F(TestOrderBook, BuyMatchesSellMatchesExpected)
     EXPECT_EQ(output, expectedOne.str());
 }
 
+// Fn : Checks if matchBuy works as expected;
 TEST_F(TestOrderBook, SellMatchesBuyMatchesExpected)
 {
     auto marketTimeOne = parseTimeString("10:00");

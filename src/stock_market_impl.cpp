@@ -2,6 +2,7 @@
 
 namespace Components {
 
+// Fn : Constructor fn for Order class;
 Order::Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty, std::chrono::system_clock::time_point time)
     : orderID(orderId)
     , stockName(stockName)
@@ -12,6 +13,7 @@ Order::Order(int orderId, const std::string& stockName, OrderType orderType, dou
 {
 }
 
+// Fn : Constructor fn for Trade class;
 Trade::Trade(int tradeId, const std::string& stockName, int buyOrderId, int sellOrderId, double price, int qty, std::chrono::system_clock::time_point timestamp)
     : tradeID(tradeId)
     , stockName(stockName)
@@ -23,16 +25,22 @@ Trade::Trade(int tradeId, const std::string& stockName, int buyOrderId, int sell
 {
 }
 
+// Fn : Constructor fn for OrderBook class;
 OrderBook::OrderBook(TradeBook& tb)
     : tradeBook(tb)
 {
 }
 
-const std::vector<Trade>& TradeBook::getTrades() const
-{
-    return trades;
-}
-
+/* Fn : Constructs a Trade object t and records the Trade into TradeBook
+   Inputs :
+    - string stockName
+    - int buyOrderId
+    - int sellOrderId
+    - double price
+    - int qty
+    - Datetime timestamp
+   Output : Trade object t
+*/
 void TradeBook::recordTrade(const std::string& stockName, const int buyOrderId, const int sellOrderId, const double price, const int qty, const std::chrono::system_clock::time_point timestamp)
 {
     const Trade t(TradeBook::totalTrades++, stockName, buyOrderId, sellOrderId, price, qty, timestamp);
@@ -50,6 +58,7 @@ void TradeBook::recordTrade(const std::string& stockName, const int buyOrderId, 
               << " Timestamp = " << std::put_time(std::localtime(&now_time), "%Y-%m-%d %H:%M:%S") << std::endl;
 }
 
+// Fn : Displays all the trades present in TradeBook;
 void TradeBook::displayAllTrades() const
 {
     for (auto trade : trades) {
@@ -66,6 +75,7 @@ void TradeBook::displayAllTrades() const
     }
 }
 
+// Fn : Matches an incoming sellOrder with any buyOrder already present in buyOrderBook
 void OrderBook::matchBuy(Order& buyOrder)
 {
     // Finds the stockName of buyOrder in sellOrderBook;
@@ -117,6 +127,7 @@ void OrderBook::matchBuy(Order& buyOrder)
     }
 }
 
+// Fn : Matches an incoming sellOrder with any buyOrder already present in buyOrderBook
 void OrderBook::matchSell(Order& sellOrder)
 {
     // Finds the stockName of sellOrder in buyOrderBook;
@@ -168,6 +179,17 @@ void OrderBook::matchSell(Order& sellOrder)
     }
 }
 
+/* Fn : Processes all the details of an order
+    Input :
+     - string stockName
+     - OrderType orderType
+     - double price
+     - int quantity
+     - Datetime time
+    Output :
+     - Creates Order object if valid details given
+     - Records Trade / places Order object in either Buy / Sell OrderBook
+*/
 void OrderBook::processOrderDetails(const std::string& stockName, const OrderType orderType, const double price, const int quantity, const std::chrono::system_clock::time_point time)
 {
     // Reject Out-Of-Hours orders;
@@ -201,6 +223,7 @@ void OrderBook::processOrderDetails(const std::string& stockName, const OrderTyp
     }
 }
 
+// Fn : Prints the details of an Order object o, placed in an OrderBook
 void OrderBook::viewPlacedOrderDetails(const Order& o) const
 {
     auto tp = o.getTimestamp();
@@ -213,6 +236,7 @@ void OrderBook::viewPlacedOrderDetails(const Order& o) const
               << " ts = " << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") << std::endl;
 }
 
+// Fn : An OrderBook cleanup utility that removes all remaining orders in OrderBooks after trading hours
 void OrderBook::endOfDayCleanup()
 {
     auto cancelSide = [&](auto& outerMap, const char* sideName) {
@@ -258,9 +282,12 @@ void OrderBook::endOfDayCleanup()
     std::cout << "All orders removed\n"
               << std::endl;
 }
-
 }
 
+/* Utility Fn : Checks if the Datetime object `now` is within trading hours;
+    Input : Datetime object now
+    Output : true / false;
+*/
 bool isWithinTradingHours(const std::chrono::system_clock::time_point& now)
 {
     std::time_t tt = std::chrono::system_clock::to_time_t(now);
@@ -274,6 +301,10 @@ bool isWithinTradingHours(const std::chrono::system_clock::time_point& now)
     return afterOpen && beforeClose;
 }
 
+/* Utility Fn : Sets anyTimeOnDay Datetime object to current trading day and returns startTime and endTime Datetime objects
+    Input : Datetime object anyTimeOnDay
+    Output : {startTime, endTime} where startTime and endTime are Datetime objects
+*/
 std::pair<std::chrono::system_clock::time_point, std::chrono::system_clock::time_point>
 getTradingWindow(const std::chrono::system_clock::time_point& anyTimeOnDay)
 {
@@ -295,6 +326,10 @@ getTradingWindow(const std::chrono::system_clock::time_point& anyTimeOnDay)
     return { open_tp, close_tp };
 }
 
+/* Utility Fn : Converts timeStr string to a Datetime object and returns this object
+    Input : string timeStr (in HH:MM time format)
+    Output : Datetime object represented in YYYY-mm-dd HH:MM:SS format
+*/
 std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr)
 {
     // timeStr format: "HH:MM"
