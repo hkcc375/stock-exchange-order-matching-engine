@@ -12,15 +12,13 @@ int main()
 
     std::cout << "=== Welcome to CLI Order Book ===\n";
     std::cout << "Commands:\n";
-    std::cout << "  BUY <userId> <price> <quantity>\n";
-    std::cout << "  SELL <userId> <price> <quantity>\n";
-    std::cout << "  CANCEL <orderId> <BUY|SELL> <price>\n";
+    std::cout << "  NEW -> place a BUY/SELL order\n";
     std::cout << "  SHOW   -> display all trades\n";
     std::cout << "  EXIT   -> quit\n";
 
     std::string line;
     while (true) {
-        std::cout << "\nEnter command (NEW, CANCEL, SHOW, EXIT): ";
+        std::cout << "\nEnter command (NEW, SHOW, EXIT): ";
         std::string cmd;
         std::getline(std::cin, cmd);
 
@@ -28,35 +26,6 @@ int main()
             break;
         else if (cmd == "SHOW") {
             tradeBook.displayAllTrades();
-            continue;
-        } else if (cmd == "CANCEL") {
-            int orderId;
-            std::string typeStr;
-            double price;
-
-            std::cout << "Enter order ID to cancel: ";
-            std::cin >> orderId;
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-            std::cout << "Enter order type (BUY/SELL): ";
-            std::cin >> typeStr;
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-            std::cout << "Enter order price: ";
-            std::cin >> price;
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-            OrderType type;
-            if (typeStr == "BUY")
-                type = OrderType::BUY;
-            else if (typeStr == "SELL")
-                type = OrderType::SELL;
-            else {
-                std::cout << "Invalid order type.\n";
-                continue;
-            }
-
-            orderBook.cancelOldOrder(orderId, type, price);
             continue;
         } else if (cmd == "NEW") {
             std::string typeStr, stock;
@@ -90,7 +59,7 @@ int main()
             orderBook.processOrderDetails(userId, type, price, quantity, stock);
             std::cout << typeStr << " order added for user " << userId << " on " << stock << "\n";
         } else {
-            std::cout << "Unknown command. Use NEW, CANCEL, SHOW, or EXIT.\n";
+            std::cout << "Unknown command. Use NEW, SHOW, or EXIT.\n";
         }
     }
 
