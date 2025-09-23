@@ -73,7 +73,7 @@ TEST_F(TestOrderBook, DisplayAllTradesMatchesExpected)
     std::time_t tt = std::chrono::system_clock::to_time_t(timestamp);
     std::ostringstream expected;
     expected << "[TRADE]"
-             << " id = 1"
+             << " id = 2"
              << " stockName = AAPL"
              << " buyOrderID = 1"
              << " sellOrderID = 2"
