@@ -226,11 +226,17 @@ void OrderBook::matchSell(Order& sellOrder)
     }
 }
 
-void OrderBook::processOrderDetails(const std::string& stockName, const OrderType orderType, const double price, const int quantity)
+void OrderBook::processOrderDetails(const std::string& stockName, const OrderType orderType, const double price, const int quantity, const std::chrono::system_clock::time_point time)
 {
+    // Reject Out-Of-Hours orders;
+    if (!isWithinTradingHours(timestamp)) {
+        std::cout << "Order rejected: outside trading hours\n";
+        return;
+    }
+
     // Only if quantity and price are positive, then an Order is created;
     if (quantity > 0 && price > 0) {
-        Order o(totalOrders++, stockName, orderType, price, quantity);
+        Order o(totalOrders++, stockName, orderType, price, quantity, time);
         viewPlacedOrderDetails(o);
 
         /* Note : Here, matchOrders returns a boolean true/false, if the incoming order matched with an existing
@@ -286,4 +292,25 @@ std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr
 
     std::time_t time_tt = std::mktime(&t);
     return std::chrono::system_clock::from_time_t(time_tt);
+}
+
+std::pair<std::chrono::system_clock::time_point, std::chrono::system_clock::time_point>
+getTradingWindow(const std::chrono::system_clock::time_point& anyTimeOnDay)
+{
+    std::time_t tt = std::chrono::system_clock::to_time_t(anyTimeOnDay);
+    std::tm day = *std::localtime(&tt);
+
+    std::tm open_tm = day;
+    open_tm.tm_hour = 9;
+    open_tm.tm_min = 15;
+    open_tm.tm_sec = 0;
+
+    std::tm close_tm = day;
+    close_tm.tm_hour = 15;
+    close_tm.tm_min = 30;
+    close_tm.tm_sec = 0;
+
+    auto open_tp = std::chrono::system_clock::from_time_t(std::mktime(&open_tm));
+    auto close_tp = std::chrono::system_clock::from_time_t(std::mktime(&close_tm));
+    return { open_tp, close_tp };
 }

@@ -28,7 +28,7 @@ int main()
             tradeBook.displayAllTrades();
             continue;
         } else if (cmd == "NEW") {
-            std::string typeStr, stock;
+            std::string typeStr, stock, timeStr;
             double price;
             int quantity;
 
@@ -44,6 +44,9 @@ int main()
             std::cout << "Enter Quantity: ";
             std::cin >> quantity;
 
+            std::cout << "Enter Time: ";
+            std::cin >> timeStr;
+
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
             OrderType type;
@@ -56,7 +59,8 @@ int main()
                 continue;
             }
 
-            orderBook.processOrderDetails(stock, type, price, quantity);
+            auto ts = parseTimeString(timeStr);
+            orderBook.processOrderDetails(stock, type, price, quantity, ts);
         } else {
             std::cout << "Unknown command. Use NEW, SHOW, or EXIT.\n";
         }

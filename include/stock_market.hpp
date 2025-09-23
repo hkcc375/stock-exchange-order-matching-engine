@@ -83,6 +83,11 @@ namespace Components {
             void processOrderDetails(const std::string& stockName, const OrderType orderType, const double price, const int quantity);    };
 }
 
+// Utility Fn - converts given time format HH:MM  to YYYY-mm-dd HH:MM:SS;
 std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr);
+
+// Utility Fn - checks if the user provided time is within trading hours;
+std::pair<std::chrono::system_clock::time_point, std::chrono::system_clock::time_point>
+getTradingWindow(const std::chrono::system_clock::time_point& anyTimeOnDay);
 
 #endif
