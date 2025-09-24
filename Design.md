@@ -59,7 +59,7 @@ It demonstrates the core functionalities of an exchange's matching system - hand
 ## Design Decisions :
 - This section explains the reasoning behind some of the key design decisions taken while building the system.
   
-  - **Thread Safety**: Used `std::mutex` and `std::atomic` to handle concurrent access to the order book safely
+  - **Thread Safety**: Used `std::mutex` and `std::atomic` to handle concurrent access to the OrderBook and TradeBook safely.
   - **Dependency Injection**: `OrderBook` depends on `TradeBook`, so I passed `TradeBook` as a reference instead of creating it inside `OrderBook`. This keeps components decoupled and easier to test.
   - **Data Structures**:
     - This structure represents the order book, where orders are grouped first by stock name, then by price, and finally stored in a list of orders at that price.
@@ -71,7 +71,7 @@ Apart from the above, I have also created few utility functions to help me proce
 
 ---
 
-## Future Enhancemenets :
+## Future Design / Functionality Enhancemenets :
 - Support ticks for a more accurate price representation and avoid any loss in precision due to rounding errors(due to `double`)
 - Support to modify and cancel Orders
 - Persistence of orders and trades to disk
