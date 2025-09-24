@@ -292,9 +292,6 @@ void OrderBook::endOfDayCleanup()
 
     cancelSide(buyOrders, "BUY");
     cancelSide(sellOrders, "SELL");
-
-    std::cout << "All orders removed\n"
-              << std::endl;
 }
 }
 

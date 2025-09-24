@@ -54,7 +54,7 @@ namespace Components {
     class Trade {
         private:
             const int tradeID;
-            const std::string& stockName;
+            const std::string stockName;
             const int buyOrderID;
             const int sellOrderID;
             const double price;
