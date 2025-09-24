@@ -11,6 +11,8 @@
 #include <list>
 #include <iomanip>
 #include <sstream>
+#include <atomic>
+#include <mutex>
 
 namespace Components {
 
@@ -85,7 +87,8 @@ namespace Components {
 
     class TradeBook {
         private:
-            int totalTrades = 1;
+            mutable std::mutex trades_mtx_;
+            std::atomic<int> totalTrades = 1;
             std::vector<Trade> trades{};
         public:
             void displayAllTrades() const;
@@ -94,9 +97,10 @@ namespace Components {
 
     class OrderBook {
         private:
+            mutable std::mutex orders_mtx_;
             // Dependency Injection;
             TradeBook& tradeBook;
-            int totalOrders = 1;
+            std::atomic<int> totalOrders = 1;
             // stockName -> Price -> List of Orders (ordered by Timestamp);
             std::map<std::string, std::map<double, std::list<Order>, std::greater<double>>> buyOrders{};
             std::map<std::string, std::map<double, std::list<Order>>> sellOrders{};

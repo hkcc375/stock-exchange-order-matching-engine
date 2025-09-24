@@ -43,24 +43,32 @@ OrderBook::OrderBook(TradeBook& tb)
 */
 void TradeBook::recordTrade(const std::string& stockName, const int buyOrderId, const int sellOrderId, const double price, const int qty, const std::chrono::system_clock::time_point timestamp)
 {
-    const Trade t(TradeBook::totalTrades++, stockName, buyOrderId, sellOrderId, price, qty, timestamp);
-    trades.push_back(t);
+    int tradeID;
+    // Critical Section - START;
+    {
+        std::lock_guard<std::mutex> lg(trades_mtx_);
+        tradeID = TradeBook::totalTrades++;
+        const Trade t(tradeID, stockName, buyOrderId, sellOrderId, price, qty, timestamp);
+        trades.push_back(t);
+    }
+    // Critical Section - END;
 
     // Record time at which Trade was added to TradeBook;
     std::time_t now_time = std::chrono::system_clock::to_time_t(timestamp);
     std::cout << "[TRADE EXECUTED]"
-              << " TradeID = " << t.getTradeID()
-              << " Stock = " << t.getStockName()
-              << " BuyOrderID = " << t.getMatchedTradeBuyOrderID()
-              << " SellOrderID = " << t.getMatchedTradeSellOrderID()
-              << " Quantity = " << t.getTradeQuantity()
-              << " Price = " << t.getTradePrice()
+              << " TradeID = " << tradeID
+              << " Stock = " << stockName
+              << " BuyOrderID = " << buyOrderId
+              << " SellOrderID = " << sellOrderId
+              << " Quantity = " << qty
+              << " Price = " << price
               << " Timestamp = " << std::put_time(std::localtime(&now_time), "%Y-%m-%d %H:%M:%S") << std::endl;
 }
 
 // Fn : Displays all the trades present in TradeBook;
 void TradeBook::displayAllTrades() const
 {
+    std::lock_guard<std::mutex> lg(trades_mtx_);
     for (auto trade : trades) {
         auto tp = trade.getTimestamp();
         std::time_t t = std::chrono::system_clock::to_time_t(tp);
@@ -198,29 +206,35 @@ void OrderBook::processOrderDetails(const std::string& stockName, const OrderTyp
         return;
     }
 
-    // Only if quantity and price are positive, then an Order is created;
-    if (quantity > 0 && price > 0) {
-        Order o(totalOrders++, stockName, orderType, price, quantity, time);
-        viewPlacedOrderDetails(o);
+    // Critical Section - START;
+    {
+        // Holds a mutex, so that we dont run into an concurrent accesses;
+        std::lock_guard<std::mutex> lg(orders_mtx_);
+        // Only if quantity and price are positive, then an Order is created;
+        if (quantity > 0 && price > 0) {
+            Order o(totalOrders++, stockName, orderType, price, quantity, time);
+            viewPlacedOrderDetails(o);
 
-        /* Note : Here, matchOrders returns a boolean true/false, if the incoming order matched with an existing
-           order; Their quantities are updated and a Trade object is generated; else, the order object is simply
-           inserted into the order book;
-        */
-        if (orderType == OrderType::BUY) {
-            matchBuy(o);
-            if (o.getQuantity() > 0) {
-                buyOrders[stockName][price].push_back(o);
+            /* Note : Here, matchOrders returns a boolean true/false, if the incoming order matched with an existing
+               order; Their quantities are updated and a Trade object is generated; else, the order object is simply
+               inserted into the order book;
+            */
+            if (orderType == OrderType::BUY) {
+                matchBuy(o);
+                if (o.getQuantity() > 0) {
+                    buyOrders[stockName][price].push_back(o);
+                }
+            } else {
+                matchSell(o);
+                if (o.getQuantity() > 0) {
+                    sellOrders[stockName][price].push_back(o);
+                }
             }
         } else {
-            matchSell(o);
-            if (o.getQuantity() > 0) {
-                sellOrders[stockName][price].push_back(o);
-            }
+            std::cout << "Invalid Order Details" << std::endl;
         }
-    } else {
-        std::cout << "Invalid Order Details" << std::endl;
     }
+    // Critical Section - END;
 }
 
 // Fn : Prints the details of an Order object o, placed in an OrderBook
