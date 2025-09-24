@@ -7,8 +7,8 @@ It demonstrates the core functionalities of an exchange's matching system - hand
 ## Setup :
 
 ### Dependencies :
-- Please ensure you have a C++ Compiler (gcc / clang) available. Here, I use clang
-- Please ensure you have installed GTest framework (for running Unit Tests)
+- Please ensure you have a C++ Compiler (gcc / clang) available. Here, I use clang version 19.1.1
+- Please ensure you have installed GTest framework (for running Unit Tests). Here, I use GoogleTest 1.17.0
 
 ### Steps to run :
 - Remove any available old builds by `rm -rf build/` in the root project directory
