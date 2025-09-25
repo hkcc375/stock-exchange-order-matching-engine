@@ -13,6 +13,8 @@
 #include <sstream>
 #include <atomic>
 #include <mutex>
+#include <fstream>
+#include <stdexcept>
 
 namespace Components {
 
@@ -20,15 +22,15 @@ namespace Components {
 
     class Order {
         private:
-            const int orderID;
+            const std::string orderID;
             const OrderType orderType;
             const double price;
             int quantity;
             const std::string stockName;
             std::chrono::system_clock::time_point timestamp;
         public:
-            Order(int orderId, const std::string& stockName, OrderType orderType, double price, int qty, std::chrono::system_clock::time_point time);
-            int getOrderID() const {
+            Order(std::string orderId, const std::string& stockName, OrderType orderType, double price, int qty, std::chrono::system_clock::time_point time);
+            std::string getOrderID() const {
                 return orderID;
             }
             double getPrice() const {
@@ -55,23 +57,23 @@ namespace Components {
         private:
             const int tradeID;
             const std::string stockName;
-            const int buyOrderID;
-            const int sellOrderID;
+            const std::string buyOrderID;
+            const std::string sellOrderID;
             const double price;
             const int quantity;
             std::chrono::system_clock::time_point timestamp;
         public:
-            Trade(int tradeId, const std::string& stockName, int buyOrderId, int sellOrderId, double price, int qty, std::chrono::system_clock::time_point timestamp);
+            Trade(int tradeId, const std::string& stockName, std::string buyOrderId, std::string sellOrderId, double price, int qty, std::chrono::system_clock::time_point timestamp);
             int getTradeID() const {
                 return tradeID;
             }
             const std::string& getStockName() const {
                 return stockName;
             }
-            int getMatchedTradeBuyOrderID() const {
+            std::string getMatchedTradeBuyOrderID() const {
                 return buyOrderID;
             }
-            int getMatchedTradeSellOrderID() const {
+            std::string getMatchedTradeSellOrderID() const {
                 return sellOrderID;
             }
             double getTradePrice() const {
@@ -92,7 +94,7 @@ namespace Components {
             std::vector<Trade> trades{};
         public:
             void displayAllTrades() const;
-            void recordTrade(const std::string& stockName, const int buyOrderId, const int sellOrderId, const double price, const int qty, const std::chrono::system_clock::time_point timestamp);
+            void recordTrade(const std::string& stockName, const std::string& buyOrderId, const std::string& sellOrderId, const double price, const int qty, const std::chrono::system_clock::time_point timestamp);
     };
 
     class OrderBook {
@@ -100,26 +102,25 @@ namespace Components {
             mutable std::mutex orders_mtx_;
             // Dependency Injection;
             TradeBook& tradeBook;
+
             std::atomic<int> totalOrders = 1;
             // stockName -> Price -> List of Orders (ordered by Timestamp);
             std::map<std::string, std::map<double, std::list<Order>, std::greater<double>>> buyOrders{};
             std::map<std::string, std::map<double, std::list<Order>>> sellOrders{};
+
+            template <typename PriceMap, typename Predicate>
+            void matchAgainst(Order& incomingOrder, PriceMap& oppositePriceMap, Predicate priceAcceptable);
             void matchBuy(Order& o);
             void matchSell(Order& o);
-            void viewPlacedOrderDetails(const Order& o) const;
         public:
             OrderBook(TradeBook& tb);
-            void processOrderDetails(const std::string& stockName, const OrderType orderType, const double price, const int quantity, const std::chrono::system_clock::time_point time);
+            void processOrderDetails(const std::string& orderId, const std::string& stockName, const OrderType orderType, const double price, const int quantity, const std::chrono::system_clock::time_point time);
             void endOfDayCleanup();    
     };
+
+    std::pair<std::chrono::system_clock::time_point, std::chrono::system_clock::time_point> getTradingHours(const std::string& filename);
+    std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr);
 }
 
-
-std::chrono::system_clock::time_point parseTimeString(const std::string& timeStr);
-
-std::pair<std::chrono::system_clock::time_point, std::chrono::system_clock::time_point>
-getTradingWindow(const std::chrono::system_clock::time_point& anyTimeOnDay);
-
-bool isWithinTradingHours(const std::chrono::system_clock::time_point& now);
 
 #endif
