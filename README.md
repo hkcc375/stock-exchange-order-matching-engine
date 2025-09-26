@@ -6,14 +6,18 @@ It demonstrates the core functionalities of an exchange's matching system - hand
 
 ## Setup :
 
-### Dependencies :
-- Please ensure you have a C++ Compiler (gcc / clang) available. Here, I use clang version 19.1.1
-- Please ensure you have installed GTest framework (for running Unit Tests). Here, I use GoogleTest 1.17.0
+### Dependencies and Configuration :
+- Please make sure you have Docker installed on your system.
+- All the necessary dependencies for running the application are baked into the container image by using a Dockerfile. Please see the Dockerfile for more information. These dependencies are :
+  - C++ Compiler
+  - GoogleTest
+- `make test` generates test artifact during Docker build time
+- `make build` also generates build artifact during Docker build time
+- Additionally, there is `trading_hours.ini` file that holds the open and close time for Stock Exchange. The application will choose to place orders on the basis of contents in this file.
 
 ### Steps to run :
-- Remove any available old builds by `rm -rf build/` in the root project directory
-- Create a build folder by `mkdir build && cd build/`. This folder will contain the built artifacts
-- Configure the project for building artifacts by `cmake .. -DCMAKE_CXX_COMPILER=clang++`. Here, I explicitly specify that I want to use clang++. This reads all the CMakeLists.txt files and prepares a recipe for build
-- Build the project by `cmake --build .`. This generates an application binary (for execution) and a test binary (for running tests)
-- Execute the application by `./run_app`
-- Test the application by `./test_app`
+- To run the application, use `docker run -it stockmarket make run`
+- To test the application, use `docker run -it stockmarket make test`
+- You can also manually, run the container in interactive mode and then run the executable inside the shell. To do this :
+  - `docker run -it stockmarket`
+  - `bin/stock_market trading_hours.ini`
