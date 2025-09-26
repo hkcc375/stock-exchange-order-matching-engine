@@ -22,6 +22,6 @@ COPY ./Makefile ./Makefile
 COPY ./trading_hours.ini ./trading_hours.ini
 
 RUN make test
+RUN make build
 
-ENTRYPOINT ["make"]
-CMD ["run"]
+CMD ["/bin/sh"]
